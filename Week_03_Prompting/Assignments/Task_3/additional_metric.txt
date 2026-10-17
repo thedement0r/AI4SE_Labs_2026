@@ -1,0 +1,68 @@
+Metric: SQL Execution Rate
+
+1. What the metric measures
+---------------------------
+SQL Execution Rate measures the share of generated SQL statements that the
+SQLite database can execute without producing an SQL error.
+
+Formula:
+    SQL Execution Rate = executable SQL statements / total predictions * 100%
+
+A statement counts as executable if SQLite accepts and runs it. Whether it
+returns the correct answer is evaluated separately.
+
+2. Why this metric was selected
+-------------------------------
+This metric is simple to calculate automatically and is directly relevant to
+the text-to-SQL task. A generated query must first be valid and executable
+before it can retrieve an answer. The metric can therefore reveal failures
+such as invalid syntax, misspelled table or column names, or incompatible SQL.
+
+3. How it relates to the original metric
+----------------------------------------
+The original evaluator measures exact-result accuracy: it executes each
+predicted query and checks whether the returned rows match the reference
+result. SQL Execution Rate complements this metric; it does not replace it.
+
+A query can execute successfully but still answer the question incorrectly.
+Execution Rate measures operational validity, while exact-result accuracy
+measures answer correctness. Reporting both helps distinguish these types of
+failure.
+
+4. Results
+----------
+All three prediction files contain 155 questions. Every query executed
+successfully in SQLite.
+
+prompt,questions,sql_executable,execution_rate,exact_correct,exact_accuracy,sql_errors
+CLEAR,155,155,1.000000,43,0.277419,0
+RACE,155,155,1.000000,43,0.277419,0
+CRISP,155,155,1.000000,43,0.277419,0
+
+CLEAR: 155 / 155 executable queries = 100.00%
+RACE:  155 / 155 executable queries = 100.00%
+CRISP: 155 / 155 executable queries = 100.00%
+
+For comparison, each framework had 43 exact-result matches out of 155:
+27.74% accuracy. Thus, the queries were valid SQLite statements, but most did
+not return the expected result. The additional metric does not rank the three
+prompts because all have the same 100% execution rate.
+
+5. Implementation and reproduction
+----------------------------------
+The metric is implemented in metric_comparison.py. It loads the schema and
+data into an in-memory SQLite database, executes every prediction, counts SQL
+errors, and reports both SQL Execution Rate and exact-result accuracy.
+
+Example command (run in the folder containing the files):
+
+python metric_comparison.py --labels restaurants_dataset.csv --schema restaurants-schema.csv --database restaurants-db.txt --prediction CLEAR=restaurants_predicted_sql.csv --prediction RACE=restaurants_predictions.csv --prediction CRISP=restaurants_dataset_predictions.csv
+
+6. Limitations
+--------------
+Execution Rate only checks whether a query can run. It does not check whether
+the query expresses the intended meaning, selects the expected columns, or
+returns the right rows. Since all predictions in this experiment executed,
+the metric is saturated at 100% and cannot distinguish these prompts. It is
+most useful alongside result accuracy and may be more informative when some
+predictions contain malformed or non-executable SQL.
