@@ -1,0 +1,10 @@
+Convert the SQL queries you just generated above into a CSV file for evaluation.
+
+Use the attached restaurants_dataset.csv as the source of questions. Preserve the original question order and wording. Match each question to its corresponding SQL query from your previous response. Do not generate new queries or change the meaning of the existing ones.
+
+Create a file named restaurants_dataset_predictions.csv with this header:
+question,predicted_sql
+
+Include exactly one row for every question. Properly escape CSV fields, including commas and quotation marks inside SQL. Do not include the result column. Check that every question has a corresponding query and that none are missing.
+
+Return the completed CSV as a downloadable file.
