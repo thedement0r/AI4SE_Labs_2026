@@ -1,0 +1,28 @@
+Model used for all runs: 6.1sol
+Reasoning level: medium
+
+CLEAR
+-----
+Prediction file: restaurants_predicted_sql.csv
+SQL generation time: 1 minute 10 seconds
+
+RACE
+----
+Prediction file: restaurants_predictions.csv
+SQL generation time: 3 minutes 32 seconds
+Additional follow-up to create the CSV file: 25 seconds
+Total elapsed time including follow-up: 3 minutes 57 seconds
+Note: The 25-second follow-up was for formatting/saving the already-generated queries as a file; it is reported separately from SQL generation time.
+
+CRISP
+-----
+Prediction file: restaurants_dataset_predictions.csv
+SQL generation time: 1 minute 24 seconds
+
+
+RESULTS RECORDED FOR COMPARISON
+-------------------------------
+Questions per prediction file: 155
+Exact-result accuracy: 43/155 (27.74%) for each framework
+SQL execution rate: 155/155 (100%) for each framework
+

@@ -1,0 +1,8 @@
+Accuracy and SQL execution rate are similar. 
+CLEAR had the shortest reported SQL-generation time (1m 10s), followed by CRISP (1m 24s) and RACE (3m 32s). 
+RACE also required a separate 25-second follow-up to turn its chat response into a CSV file. 
+That follow-up is shown separately because it was file preparation, not generation of the SQL answers; including it, the total RACE workflow took 3m 57s.
+
+In this one set of runs, CLEAR appears fastest while producing the same measured quality. 
+The timing is not quite model telemetry its my records.
+One run per framework was done so this comparison does not establish that CLEAR is generally faster. 
