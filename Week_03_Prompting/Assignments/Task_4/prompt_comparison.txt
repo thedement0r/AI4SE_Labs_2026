@@ -1,0 +1,13 @@
+We compared CLEAR, RACE, and CRISP on the same 155 questions using model 6.1sol at medium level.
+
+Results:
+- CLEAR: 43/155 correct (27.74%); 155/155 SQL queries executed (100%).
+- RACE: 43/155 correct (27.74%); 155/155 SQL queries executed (100%).
+- CRISP: 43/155 correct (27.74%); 155/155 SQL queries executed (100%).
+
+The prompts got exactly the same 43 questions right. The paired statistical test found no significant difference (McNemar p = 1.00). In these runs, no prompt performed better than the others.
+
+Why might the results be the same?
+The prompts used different frameworks, but they asked the same model to do the same task with the same database schema. The questions may also contain ambiguous wording that is difficult for the model regardless of prompt structure. The same evaluation script was used for all three files, so the model itself did not create a difference in scoring.
+
+This is only one run for each prompt, so it does not prove the prompts will always perform equally. Repeated runs would be needed for a stronger conclusion.
