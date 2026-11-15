@@ -1,0 +1,935 @@
+test_eq_different_type_same_identity_is_false (tests.test_base.EntityTests.test_eq_different_type_same_identity_is_false) ... ok
+test_eq_non_entity_is_false (tests.test_base.EntityTests.test_eq_non_entity_is_false) ... ok
+test_eq_returns_not_implemented_for_mismatched_type (tests.test_base.EntityTests.test_eq_returns_not_implemented_for_mismatched_type) ... ok
+test_eq_same_type_different_identity (tests.test_base.EntityTests.test_eq_same_type_different_identity) ... ok
+test_eq_same_type_same_identity (tests.test_base.EntityTests.test_eq_same_type_same_identity) ... ok
+test_hash_equal_for_equal_entities (tests.test_base.EntityTests.test_hash_equal_for_equal_entities) ... ok
+test_hash_includes_type_name (tests.test_base.EntityTests.test_hash_includes_type_name) ... ok
+test_hash_usable_in_set (tests.test_base.EntityTests.test_hash_usable_in_set) ... ok
+test_is_abstract (tests.test_base.EntityTests.test_is_abstract) ... ok
+test_ne_uses_identity_comparison (tests.test_base.EntityTests.test_ne_uses_identity_comparison) ... ok
+test_repr (tests.test_base.EntityTests.test_repr) ... ok
+test_subclass_without_identity_is_abstract (tests.test_base.EntityTests.test_subclass_without_identity_is_abstract) ... ok
+test_call_delegates_to_price (tests.test_base.PricingStrategyTests.test_call_delegates_to_price) ... ok
+test_is_abstract (tests.test_base.PricingStrategyTests.test_is_abstract) ... ok
+test_sum_subtotals_accepts_tuple (tests.test_base.PricingStrategyTests.test_sum_subtotals_accepts_tuple) ... ok
+test_sum_subtotals_empty_returns_zero_money (tests.test_base.PricingStrategyTests.test_sum_subtotals_empty_returns_zero_money) ... ok
+test_sum_subtotals_multiple_items (tests.test_base.PricingStrategyTests.test_sum_subtotals_multiple_items) ... ok
+test_sum_subtotals_single_item (tests.test_base.PricingStrategyTests.test_sum_subtotals_single_item) ... ok
+test_contains_missing_key_is_false_via_keyerror (tests.test_base.RepositoryTests.test_contains_missing_key_is_false_via_keyerror) ... ok
+test_contains_non_str_returns_false (tests.test_base.RepositoryTests.test_contains_non_str_returns_false) ... ok
+test_contains_present_key_is_true (tests.test_base.RepositoryTests.test_contains_present_key_is_true) ... ok
+test_contains_uses_get (tests.test_base.RepositoryTests.test_contains_uses_get) ... ok
+test_is_abstract (tests.test_base.RepositoryTests.test_is_abstract) ... ok
+test_base_exception_not_caught_but_not_recorded (tests.test_decorators.AuditTrailCallTests.test_base_exception_not_caught_but_not_recorded) ... ok
+test_error_type_name_reflects_exception_class (tests.test_decorators.AuditTrailCallTests.test_error_type_name_reflects_exception_class) ... ok
+test_exception_records_error_and_reraises (tests.test_decorators.AuditTrailCallTests.test_exception_records_error_and_reraises) ... ok
+test_multiple_calls_accumulate_in_order (tests.test_decorators.AuditTrailCallTests.test_multiple_calls_accumulate_in_order) ... ok
+test_non_callable_rejected (tests.test_decorators.AuditTrailCallTests.test_non_callable_rejected) ... ok
+test_passes_args_and_kwargs (tests.test_decorators.AuditTrailCallTests.test_passes_args_and_kwargs) ... ok
+test_same_trail_shared_between_functions (tests.test_decorators.AuditTrailCallTests.test_same_trail_shared_between_functions) ... ok
+test_success_records_ok_and_returns_result (tests.test_decorators.AuditTrailCallTests.test_success_records_ok_and_returns_result) ... ok
+test_wrapper_preserves_metadata (tests.test_decorators.AuditTrailCallTests.test_wrapper_preserves_metadata) ... ok
+test_blank_label_rejected (tests.test_decorators.AuditTrailConstructionTests.test_blank_label_rejected) ... ok
+test_custom_label_accepted (tests.test_decorators.AuditTrailConstructionTests.test_custom_label_accepted) ... ok
+test_default_label_and_empty (tests.test_decorators.AuditTrailConstructionTests.test_default_label_and_empty) ... ok
+test_empty_label_rejected (tests.test_decorators.AuditTrailConstructionTests.test_empty_label_rejected) ... ok
+test_non_str_label_rejected (tests.test_decorators.AuditTrailConstructionTests.test_non_str_label_rejected) ... ok
+test_clear_empties (tests.test_decorators.AuditTrailEntriesClearTests.test_clear_empties) ... ok
+test_clear_on_empty_is_noop (tests.test_decorators.AuditTrailEntriesClearTests.test_clear_on_empty_is_noop) ... ok
+test_entries_is_snapshot_tuple (tests.test_decorators.AuditTrailEntriesClearTests.test_entries_is_snapshot_tuple) ... ok
+test_recording_resumes_after_clear (tests.test_decorators.AuditTrailEntriesClearTests.test_recording_resumes_after_clear) ... ok
+test_from_label_empty_string_raises_value_error (tests.test_enums.CategoryTests.test_from_label_empty_string_raises_value_error) ... ok
+test_from_label_exact_match (tests.test_enums.CategoryTests.test_from_label_exact_match) ... ok
+test_from_label_non_str_raises_type_error (tests.test_enums.CategoryTests.test_from_label_non_str_raises_type_error) ... ok
+test_from_label_resolves_every_member (tests.test_enums.CategoryTests.test_from_label_resolves_every_member) ... ok
+test_from_label_strips_and_lowercases (tests.test_enums.CategoryTests.test_from_label_strips_and_lowercases) ... ok
+test_from_label_unknown_raises_value_error (tests.test_enums.CategoryTests.test_from_label_unknown_raises_value_error) ... ok
+test_member_values (tests.test_enums.CategoryTests.test_member_values) ... ok
+test_str_returns_value (tests.test_enums.CategoryTests.test_str_returns_value) ... ok
+test_members_are_hashable_and_distinct (tests.test_enums.EventTypeTests.test_members_are_hashable_and_distinct) ... ok
+test_values (tests.test_enums.EventTypeTests.test_values) ... ok
+test_cancelled_is_terminal (tests.test_enums.OrderStatusTests.test_cancelled_is_terminal) ... FAIL
+test_member_values (tests.test_enums.OrderStatusTests.test_member_values) ... ok
+test_new_is_not_terminal (tests.test_enums.OrderStatusTests.test_new_is_not_terminal) ... FAIL
+test_reserved_is_not_terminal (tests.test_enums.OrderStatusTests.test_reserved_is_not_terminal) ... FAIL
+test_shipped_is_terminal (tests.test_enums.OrderStatusTests.test_shipped_is_terminal) ... FAIL
+test_contains_false_after_all_unsubscribed (tests.test_events.EventBusContainsTests.test_contains_false_after_all_unsubscribed) ... ok
+test_contains_false_without_handlers (tests.test_events.EventBusContainsTests.test_contains_false_without_handlers) ... ok
+test_contains_non_event_type_is_false (tests.test_events.EventBusContainsTests.test_contains_non_event_type_is_false) ... ok
+test_contains_true_with_handler (tests.test_events.EventBusContainsTests.test_contains_true_with_handler) ... FAIL
+test_handler_exception_propagates (tests.test_events.EventBusPublishTests.test_handler_exception_propagates) ... ok
+test_handler_unsubscribing_during_publish_does_not_skip (tests.test_events.EventBusPublishTests.test_handler_unsubscribing_during_publish_does_not_skip) ... ok
+test_handlers_called_in_subscription_order (tests.test_events.EventBusPublishTests.test_handlers_called_in_subscription_order) ... ok
+test_publish_accepts_any_mapping (tests.test_events.EventBusPublishTests.test_publish_accepts_any_mapping) ... ok
+test_publish_calls_handler_with_payload (tests.test_events.EventBusPublishTests.test_publish_calls_handler_with_payload) ... ok
+test_publish_no_handlers_returns_zero (tests.test_events.EventBusPublishTests.test_publish_no_handlers_returns_zero) ... ok
+test_publish_non_event_type_rejected (tests.test_events.EventBusPublishTests.test_publish_non_event_type_rejected) ... ok
+test_publish_non_mapping_payload_rejected (tests.test_events.EventBusPublishTests.test_publish_non_mapping_payload_rejected) ... ok
+test_publish_only_matching_type (tests.test_events.EventBusPublishTests.test_publish_only_matching_type) ... ok
+test_len_sums_across_types (tests.test_events.EventBusSubscribeTests.test_len_sums_across_types) ... ok
+test_same_handler_twice_counted_twice (tests.test_events.EventBusSubscribeTests.test_same_handler_twice_counted_twice) ... ok
+test_starts_empty (tests.test_events.EventBusSubscribeTests.test_starts_empty) ... ok
+test_subscribe_non_callable_rejected (tests.test_events.EventBusSubscribeTests.test_subscribe_non_callable_rejected) ... ok
+test_subscribe_non_event_type_rejected (tests.test_events.EventBusSubscribeTests.test_subscribe_non_event_type_rejected) ... ok
+test_subscribe_registers_handler (tests.test_events.EventBusSubscribeTests.test_subscribe_registers_handler) ... FAIL
+test_unsubscribe_on_unknown_type_returns_false (tests.test_events.EventBusUnsubscribeTests.test_unsubscribe_on_unknown_type_returns_false) ... ok
+test_unsubscribe_registered_returns_true (tests.test_events.EventBusUnsubscribeTests.test_unsubscribe_registered_returns_true) ... ok
+test_unsubscribe_removes_first_occurrence_only (tests.test_events.EventBusUnsubscribeTests.test_unsubscribe_removes_first_occurrence_only) ... ok
+test_unsubscribe_unknown_handler_returns_false (tests.test_events.EventBusUnsubscribeTests.test_unsubscribe_unknown_handler_returns_false) ... ok
+test_unsubscribe_wrong_type_returns_false (tests.test_events.EventBusUnsubscribeTests.test_unsubscribe_wrong_type_returns_false) ... ok
+test_attribute_and_message (tests.test_exceptions.DuplicateEntityErrorTests.test_attribute_and_message) ... ok
+test_duplicate_entity_derives_from_root_only (tests.test_exceptions.ExceptionHierarchyTests.test_duplicate_entity_derives_from_root_only) ... ok
+test_every_class_is_playground_error_subclass (tests.test_exceptions.ExceptionHierarchyTests.test_every_class_is_playground_error_subclass) ... ok
+test_invalid_transition_derives_from_root_only (tests.test_exceptions.ExceptionHierarchyTests.test_invalid_transition_derives_from_root_only) ... ok
+test_inventory_error_derives_from_root (tests.test_exceptions.ExceptionHierarchyTests.test_inventory_error_derives_from_root) ... ok
+test_out_of_stock_derives_from_inventory_error (tests.test_exceptions.ExceptionHierarchyTests.test_out_of_stock_derives_from_inventory_error) ... ok
+test_root_catches_all_subclasses (tests.test_exceptions.ExceptionHierarchyTests.test_root_catches_all_subclasses) ... ok
+test_root_derives_from_exception (tests.test_exceptions.ExceptionHierarchyTests.test_root_derives_from_exception) ... ok
+test_unknown_sku_derives_from_inventory_error (tests.test_exceptions.ExceptionHierarchyTests.test_unknown_sku_derives_from_inventory_error) ... ok
+test_accepts_arbitrary_objects (tests.test_exceptions.InvalidTransitionErrorTests.test_accepts_arbitrary_objects) ... ok
+test_attributes_and_message (tests.test_exceptions.InvalidTransitionErrorTests.test_attributes_and_message) ... ok
+test_attributes_are_set (tests.test_exceptions.OutOfStockErrorTests.test_attributes_are_set) ... ok
+test_is_catchable_as_inventory_error (tests.test_exceptions.OutOfStockErrorTests.test_is_catchable_as_inventory_error) ... ok
+test_message_format (tests.test_exceptions.OutOfStockErrorTests.test_message_format) ... ok
+test_attribute_and_message (tests.test_exceptions.UnknownSKUErrorTests.test_attribute_and_message) ... ok
+test_out_of_stock_is_inventory_error (tests.test_inventory.InventoryErrorHierarchyTests.test_out_of_stock_is_inventory_error) ... ok
+test_accepts_repository (tests.test_inventory.InventoryLedgerConstructionTests.test_accepts_repository) ... ok
+test_requires_repository (tests.test_inventory.InventoryLedgerConstructionTests.test_requires_repository) ... ok
+test_contains_malformed_string_false (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_contains_malformed_string_false) ... ok
+test_contains_non_str_false (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_contains_non_str_false) ... ok
+test_contains_normalized_present (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_contains_normalized_present) ... FAIL
+test_contains_present_even_if_zero_on_hand_after_commit (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_contains_present_even_if_zero_on_hand_after_commit) ... FAIL
+test_contains_valid_but_unstocked_false (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_contains_valid_but_unstocked_false) ... ok
+test_iter_empty (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_iter_empty) ... ok
+test_iter_skips_zeroed_skus (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_iter_skips_zeroed_skus) ... ok
+test_iter_sorted_and_positive_only (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_iter_sorted_and_positive_only) ... ok
+test_len_counts_positive_on_hand_only (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_len_counts_positive_on_hand_only) ... ok
+test_len_excludes_fully_committed_sku (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_len_excludes_fully_committed_sku) ... ok
+test_commit_bad_quantity (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_commit_bad_quantity) ... ok
+test_commit_more_than_reserved_raises (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_commit_more_than_reserved_raises) ... ok
+test_commit_partial_keeps_remaining_hold (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_commit_partial_keeps_remaining_hold) ... ok
+test_commit_reduces_on_hand_and_reserved (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_commit_reduces_on_hand_and_reserved) ... ok
+test_commit_unknown_sku (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_commit_unknown_sku) ... ok
+test_commit_with_nothing_reserved_raises (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_commit_with_nothing_reserved_raises) ... ok
+test_release_bad_quantity (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_release_bad_quantity) ... ok
+test_release_more_than_reserved_raises (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_release_more_than_reserved_raises) ... ok
+test_release_partial (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_release_partial) ... ok
+test_release_restores_available (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_release_restores_available) ... ok
+test_release_unknown_sku (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_release_unknown_sku) ... ok
+test_release_with_nothing_reserved_raises (tests.test_inventory.InventoryLedgerReleaseCommitTests.test_release_with_nothing_reserved_raises) ... ok
+test_reserve_bad_quantity (tests.test_inventory.InventoryLedgerReserveTests.test_reserve_bad_quantity) ... ok
+test_reserve_considers_existing_reservations (tests.test_inventory.InventoryLedgerReserveTests.test_reserve_considers_existing_reservations) ... ok
+test_reserve_exact_available_allowed (tests.test_inventory.InventoryLedgerReserveTests.test_reserve_exact_available_allowed) ... ok
+test_reserve_out_of_stock_on_unstocked_sku (tests.test_inventory.InventoryLedgerReserveTests.test_reserve_out_of_stock_on_unstocked_sku) ... ok
+test_reserve_over_available_raises_out_of_stock (tests.test_inventory.InventoryLedgerReserveTests.test_reserve_over_available_raises_out_of_stock) ... ok
+test_reserve_returns_context_and_reduces_available (tests.test_inventory.InventoryLedgerReserveTests.test_reserve_returns_context_and_reduces_available) ... ok
+test_reserve_unknown_sku (tests.test_inventory.InventoryLedgerReserveTests.test_reserve_unknown_sku) ... ok
+test_add_stock_invalid_quantity_bool (tests.test_inventory.InventoryLedgerStockTests.test_add_stock_invalid_quantity_bool) ... ok
+test_add_stock_invalid_sku_chars (tests.test_inventory.InventoryLedgerStockTests.test_add_stock_invalid_sku_chars) ... ok
+test_add_stock_normalizes_sku (tests.test_inventory.InventoryLedgerStockTests.test_add_stock_normalizes_sku) ... ok
+test_add_stock_returns_new_on_hand (tests.test_inventory.InventoryLedgerStockTests.test_add_stock_returns_new_on_hand) ... ok
+test_add_stock_unknown_sku (tests.test_inventory.InventoryLedgerStockTests.test_add_stock_unknown_sku) ... ok
+test_add_stock_zero_quantity (tests.test_inventory.InventoryLedgerStockTests.test_add_stock_zero_quantity) ... ok
+test_available_defaults_to_zero_when_no_stock (tests.test_inventory.InventoryLedgerStockTests.test_available_defaults_to_zero_when_no_stock) ... ok
+test_available_normalizes (tests.test_inventory.InventoryLedgerStockTests.test_available_normalizes) ... ok
+test_available_unknown_sku (tests.test_inventory.InventoryLedgerStockTests.test_available_unknown_sku) ... ok
+test_quantity_validated_before_sku (tests.test_inventory.InventoryLedgerStockTests.test_quantity_validated_before_sku) ... ok
+test_require_sku_malformed_raises_value_error (tests.test_inventory.InventoryLedgerStockTests.test_require_sku_malformed_raises_value_error) ... ok
+test_require_sku_returns_normalized (tests.test_inventory.InventoryLedgerStockTests.test_require_sku_returns_normalized) ... ok
+test_require_sku_unknown_raises (tests.test_inventory.InventoryLedgerStockTests.test_require_sku_unknown_raises) ... ok
+test_commit_after_release_raises (tests.test_inventory.ReservationContextTests.test_commit_after_release_raises) ... ok
+test_commit_inside_block_keeps_stock_consumed (tests.test_inventory.ReservationContextTests.test_commit_inside_block_keeps_stock_consumed) ... ok
+test_commit_twice_raises (tests.test_inventory.ReservationContextTests.test_commit_twice_raises) ... ok
+test_enter_after_commit_raises (tests.test_inventory.ReservationContextTests.test_enter_after_commit_raises) ... ok
+test_enter_after_release_raises (tests.test_inventory.ReservationContextTests.test_enter_after_release_raises) ... ok
+test_enter_returns_self (tests.test_inventory.ReservationContextTests.test_enter_returns_self) ... ok
+test_exception_inside_block_releases_and_propagates (tests.test_inventory.ReservationContextTests.test_exception_inside_block_releases_and_propagates) ... ok
+test_exit_returns_false (tests.test_inventory.ReservationContextTests.test_exit_returns_false) ... ok
+test_exit_when_already_committed_does_not_release (tests.test_inventory.ReservationContextTests.test_exit_when_already_committed_does_not_release) ... ok
+test_exit_when_already_released_is_noop (tests.test_inventory.ReservationContextTests.test_exit_when_already_released_is_noop) ... ok
+test_exit_without_commit_releases (tests.test_inventory.ReservationContextTests.test_exit_without_commit_releases) ... ok
+test_initial_state_held (tests.test_inventory.ReservationContextTests.test_initial_state_held) ... ok
+test_repr (tests.test_inventory.ReservationContextTests.test_repr) ... ok
+test_empty_id_rejected (tests.test_inventory.WarehouseTests.test_empty_id_rejected) ... ok
+test_equality_by_id (tests.test_inventory.WarehouseTests.test_equality_by_id) ... ok
+test_identity (tests.test_inventory.WarehouseTests.test_identity) ... ok
+test_ledger_property (tests.test_inventory.WarehouseTests.test_ledger_property) ... ok
+test_non_ledger_rejected (tests.test_inventory.WarehouseTests.test_non_ledger_rejected) ... ok
+test_non_str_id_rejected (tests.test_inventory.WarehouseTests.test_non_str_id_rejected) ... ok
+test_receive_bad_quantity_propagates (tests.test_inventory.WarehouseTests.test_receive_bad_quantity_propagates) ... ok
+test_receive_delegates_and_returns_on_hand (tests.test_inventory.WarehouseTests.test_receive_delegates_and_returns_on_hand) ... ok
+test_receive_unknown_sku_propagates (tests.test_inventory.WarehouseTests.test_receive_unknown_sku_propagates) ... ok
+test_repr (tests.test_inventory.WarehouseTests.test_repr) ... ok
+test_stock_report_empty (tests.test_inventory.WarehouseTests.test_stock_report_empty) ... FAIL
+test_stock_report_lists_available (tests.test_inventory.WarehouseTests.test_stock_report_lists_available) ... FAIL
+test_can_afford_accounts_for_existing_balance (tests.test_models.CustomerTests.test_can_afford_accounts_for_existing_balance) ... ERROR
+test_can_afford_false_over_limit (tests.test_models.CustomerTests.test_can_afford_false_over_limit) ... ok
+test_can_afford_non_money_rejected (tests.test_models.CustomerTests.test_can_afford_non_money_rejected) ... FAIL
+test_can_afford_true_within_limit (tests.test_models.CustomerTests.test_can_afford_true_within_limit) ... FAIL
+test_charge_exactly_to_limit_allowed (tests.test_models.CustomerTests.test_charge_exactly_to_limit_allowed) ... ERROR
+test_charge_exceeding_limit_raises_and_keeps_balance (tests.test_models.CustomerTests.test_charge_exceeding_limit_raises_and_keeps_balance) ... ok
+test_charge_increases_balance (tests.test_models.CustomerTests.test_charge_increases_balance) ... ERROR
+test_charge_non_money_propagates_type_error (tests.test_models.CustomerTests.test_charge_non_money_propagates_type_error) ... ERROR
+test_constructor_stores_fields (tests.test_models.CustomerTests.test_constructor_stores_fields) ... ok
+test_default_credit_limit_and_balance (tests.test_models.CustomerTests.test_default_credit_limit_and_balance) ... ok
+test_default_limit_not_shared_across_instances_semantics (tests.test_models.CustomerTests.test_default_limit_not_shared_across_instances_semantics) ... ok
+test_empty_customer_id_rejected (tests.test_models.CustomerTests.test_empty_customer_id_rejected) ... ok
+test_empty_name_rejected (tests.test_models.CustomerTests.test_empty_name_rejected) ... ok
+test_equality_by_customer_id (tests.test_models.CustomerTests.test_equality_by_customer_id) ... ok
+test_identity_is_customer_id (tests.test_models.CustomerTests.test_identity_is_customer_id) ... ok
+test_non_money_credit_limit_rejected (tests.test_models.CustomerTests.test_non_money_credit_limit_rejected) ... ok
+test_non_str_customer_id_rejected (tests.test_models.CustomerTests.test_non_str_customer_id_rejected) ... ok
+test_non_str_name_rejected (tests.test_models.CustomerTests.test_non_str_name_rejected) ... ok
+test_read_only_properties (tests.test_models.CustomerTests.test_read_only_properties) ... ok
+test_bool_quantity_rejected (tests.test_models.LineItemTests.test_bool_quantity_rejected) ... ok
+test_eq_differs_on_price (tests.test_models.LineItemTests.test_eq_differs_on_price) ... ok
+test_eq_differs_on_quantity (tests.test_models.LineItemTests.test_eq_differs_on_quantity) ... ok
+test_eq_non_line_item_returns_not_implemented (tests.test_models.LineItemTests.test_eq_non_line_item_returns_not_implemented) ... ok
+test_eq_same_fields (tests.test_models.LineItemTests.test_eq_same_fields) ... ok
+test_hash_consistent_with_equal_items (tests.test_models.LineItemTests.test_hash_consistent_with_equal_items) ... ok
+test_invalid_sku_propagates (tests.test_models.LineItemTests.test_invalid_sku_propagates) ... ok
+test_negative_quantity_rejected (tests.test_models.LineItemTests.test_negative_quantity_rejected) ... ok
+test_non_money_price_rejected (tests.test_models.LineItemTests.test_non_money_price_rejected) ... ok
+test_repr (tests.test_models.LineItemTests.test_repr) ... ok
+test_stores_fields (tests.test_models.LineItemTests.test_stores_fields) ... ok
+test_subtotal (tests.test_models.LineItemTests.test_subtotal) ... ok
+test_with_quantity_returns_new_item (tests.test_models.LineItemTests.test_with_quantity_returns_new_item) ... ok
+test_with_quantity_validates (tests.test_models.LineItemTests.test_with_quantity_validates) ... ok
+test_zero_quantity_rejected (tests.test_models.LineItemTests.test_zero_quantity_rejected) ... ok
+test_add (tests.test_models.MoneyArithmeticTests.test_add) ... ok
+test_add_non_money_raises_type_error (tests.test_models.MoneyArithmeticTests.test_add_non_money_raises_type_error) ... ok
+test_mul_bool_rejected (tests.test_models.MoneyArithmeticTests.test_mul_bool_rejected) ... ok
+test_mul_by_int (tests.test_models.MoneyArithmeticTests.test_mul_by_int) ... ok
+test_mul_by_zero (tests.test_models.MoneyArithmeticTests.test_mul_by_zero) ... ok
+test_mul_float_rejected (tests.test_models.MoneyArithmeticTests.test_mul_float_rejected) ... ok
+test_mul_negative_rejected (tests.test_models.MoneyArithmeticTests.test_mul_negative_rejected) ... ok
+test_rmul_delegates_to_mul (tests.test_models.MoneyArithmeticTests.test_rmul_delegates_to_mul) ... ok
+test_rmul_invalid_factor_rejected (tests.test_models.MoneyArithmeticTests.test_rmul_invalid_factor_rejected) ... ok
+test_rmul_supports_int_on_left (tests.test_models.MoneyArithmeticTests.test_rmul_supports_int_on_left) ... ok
+test_sub (tests.test_models.MoneyArithmeticTests.test_sub) ... ok
+test_sub_negative_result_raises_value_error (tests.test_models.MoneyArithmeticTests.test_sub_negative_result_raises_value_error) ... ok
+test_sub_non_money_raises_type_error (tests.test_models.MoneyArithmeticTests.test_sub_non_money_raises_type_error) ... ok
+test_sub_to_zero_allowed (tests.test_models.MoneyArithmeticTests.test_sub_to_zero_allowed) ... ok
+test_eq_different_cents (tests.test_models.MoneyComparisonTests.test_eq_different_cents) ... ok
+test_eq_non_money_is_false (tests.test_models.MoneyComparisonTests.test_eq_non_money_is_false) ... ok
+test_eq_non_money_returns_not_implemented (tests.test_models.MoneyComparisonTests.test_eq_non_money_returns_not_implemented) ... ok
+test_eq_same_cents (tests.test_models.MoneyComparisonTests.test_eq_same_cents) ... ok
+test_ge_works_via_reflected_le (tests.test_models.MoneyComparisonTests.test_ge_works_via_reflected_le) ... ok
+test_gt_works_via_reflected_lt (tests.test_models.MoneyComparisonTests.test_gt_works_via_reflected_lt) ... ok
+test_le_equal (tests.test_models.MoneyComparisonTests.test_le_equal) ... ok
+test_le_greater (tests.test_models.MoneyComparisonTests.test_le_greater) ... ok
+test_le_less (tests.test_models.MoneyComparisonTests.test_le_less) ... ok
+test_le_non_money_raises_type_error_via_operator (tests.test_models.MoneyComparisonTests.test_le_non_money_raises_type_error_via_operator) ... ok
+test_le_non_money_returns_not_implemented (tests.test_models.MoneyComparisonTests.test_le_non_money_returns_not_implemented) ... ok
+test_lt_false_when_equal_or_greater (tests.test_models.MoneyComparisonTests.test_lt_false_when_equal_or_greater) ... ok
+test_lt_non_money_raises_type_error_via_operator (tests.test_models.MoneyComparisonTests.test_lt_non_money_raises_type_error_via_operator) ... ok
+test_lt_non_money_returns_not_implemented (tests.test_models.MoneyComparisonTests.test_lt_non_money_returns_not_implemented) ... ok
+test_lt_true (tests.test_models.MoneyComparisonTests.test_lt_true) ... ok
+test_ne (tests.test_models.MoneyComparisonTests.test_ne) ... ok
+test_sorting (tests.test_models.MoneyComparisonTests.test_sorting) ... ok
+test_bool_rejected (tests.test_models.MoneyConstructionTests.test_bool_rejected) ... ok
+test_cents_is_read_only (tests.test_models.MoneyConstructionTests.test_cents_is_read_only) ... ok
+test_default_is_zero (tests.test_models.MoneyConstructionTests.test_default_is_zero) ... ok
+test_float_rejected (tests.test_models.MoneyConstructionTests.test_float_rejected) ... ok
+test_negative_rejected (tests.test_models.MoneyConstructionTests.test_negative_rejected) ... ok
+test_stores_cents (tests.test_models.MoneyConstructionTests.test_stores_cents) ... ok
+test_str_rejected (tests.test_models.MoneyConstructionTests.test_str_rejected) ... ok
+test_bool_false_for_zero (tests.test_models.MoneyMiscTests.test_bool_false_for_zero) ... ERROR
+test_bool_true_for_nonzero (tests.test_models.MoneyMiscTests.test_bool_true_for_nonzero) ... ERROR
+test_hash_matches_equal_values (tests.test_models.MoneyMiscTests.test_hash_matches_equal_values) ... ok
+test_repr (tests.test_models.MoneyMiscTests.test_repr) ... ok
+test_str_formats_dollars (tests.test_models.MoneyMiscTests.test_str_formats_dollars) ... ok
+test_usable_as_set_member (tests.test_models.MoneyMiscTests.test_usable_as_set_member) ... ok
+test_blank_name_rejected (tests.test_models.ProductTests.test_blank_name_rejected) ... ok
+test_constructor_stores_fields (tests.test_models.ProductTests.test_constructor_stores_fields) ... ok
+test_equality_by_identity_same_sku_different_name (tests.test_models.ProductTests.test_equality_by_identity_same_sku_different_name) ... ok
+test_from_dict_bad_category_type_raises_type_error (tests.test_models.ProductTests.test_from_dict_bad_category_type_raises_type_error) ... ok
+test_from_dict_invalid_price_propagates (tests.test_models.ProductTests.test_from_dict_invalid_price_propagates) ... ok
+test_from_dict_missing_key_raises_key_error (tests.test_models.ProductTests.test_from_dict_missing_key_raises_key_error) ... ok
+test_from_dict_unknown_category_label_raises_value_error (tests.test_models.ProductTests.test_from_dict_unknown_category_label_raises_value_error) ... ok
+test_from_dict_with_category_enum (tests.test_models.ProductTests.test_from_dict_with_category_enum) ... ok
+test_from_dict_with_category_string (tests.test_models.ProductTests.test_from_dict_with_category_string) ... ok
+test_identity_is_sku (tests.test_models.ProductTests.test_identity_is_sku) ... ok
+test_inequality_different_sku (tests.test_models.ProductTests.test_inequality_different_sku) ... ok
+test_invalid_sku_propagates_value_error (tests.test_models.ProductTests.test_invalid_sku_propagates_value_error) ... ok
+test_is_entity (tests.test_models.ProductTests.test_is_entity) ... ok
+test_is_valid_name_accepts_normal (tests.test_models.ProductTests.test_is_valid_name_accepts_normal) ... ok
+test_is_valid_name_length_boundaries (tests.test_models.ProductTests.test_is_valid_name_length_boundaries) ... ok
+test_is_valid_name_rejects_blank (tests.test_models.ProductTests.test_is_valid_name_rejects_blank) ... ok
+test_is_valid_name_rejects_non_str (tests.test_models.ProductTests.test_is_valid_name_rejects_non_str) ... ok
+test_is_valid_name_strips_before_measuring (tests.test_models.ProductTests.test_is_valid_name_strips_before_measuring) ... ok
+test_non_category_rejected (tests.test_models.ProductTests.test_non_category_rejected) ... ok
+test_non_money_price_rejected (tests.test_models.ProductTests.test_non_money_price_rejected) ... ok
+test_non_str_name_rejected (tests.test_models.ProductTests.test_non_str_name_rejected) ... ok
+test_non_str_sku_propagates_type_error (tests.test_models.ProductTests.test_non_str_sku_propagates_type_error) ... ok
+test_read_only_properties (tests.test_models.ProductTests.test_read_only_properties) ... ok
+test_sku_is_normalized (tests.test_models.ProductTests.test_sku_is_normalized) ... ok
+test_with_price_non_money_rejected (tests.test_models.ProductTests.test_with_price_non_money_rejected) ... ok
+test_with_price_returns_new_product (tests.test_models.ProductTests.test_with_price_returns_new_product) ... ok
+test_add_after_advance_rejected (tests.test_orders.OrderAddItemTests.test_add_after_advance_rejected) ... FAIL
+test_add_after_cancel_rejected (tests.test_orders.OrderAddItemTests.test_add_after_cancel_rejected) ... ok
+test_add_appends_new_sku (tests.test_orders.OrderAddItemTests.test_add_appends_new_sku) ... ERROR
+test_add_same_sku_merges_quantity (tests.test_orders.OrderAddItemTests.test_add_same_sku_merges_quantity) ... ERROR
+test_merge_keeps_position (tests.test_orders.OrderAddItemTests.test_merge_keeps_position) ... ok
+test_non_line_item_rejected (tests.test_orders.OrderAddItemTests.test_non_line_item_rejected) ... ok
+test_advance_from_terminal_raises (tests.test_orders.OrderAdvanceTests.test_advance_from_terminal_raises) ... FAIL
+test_advance_to_same_status_raises (tests.test_orders.OrderAdvanceTests.test_advance_to_same_status_raises) ... FAIL
+test_cancel_from_new (tests.test_orders.OrderAdvanceTests.test_cancel_from_new) ... FAIL
+test_cancel_from_reserved (tests.test_orders.OrderAdvanceTests.test_cancel_from_reserved) ... FAIL
+test_happy_path_to_shipped (tests.test_orders.OrderAdvanceTests.test_happy_path_to_shipped) ... FAIL
+test_illegal_advance_raises_and_keeps_status (tests.test_orders.OrderAdvanceTests.test_illegal_advance_raises_and_keeps_status) ... FAIL
+test_add_normalizes_sku (tests.test_orders.OrderBuilderTests.test_add_normalizes_sku) ... ok
+test_add_returns_self_for_chaining (tests.test_orders.OrderBuilderTests.test_add_returns_self_for_chaining) ... ok
+test_add_validates_via_line_item (tests.test_orders.OrderBuilderTests.test_add_validates_via_line_item) ... ok
+test_build_empty_raises (tests.test_orders.OrderBuilderTests.test_build_empty_raises) ... ok
+test_build_merges_duplicate_skus (tests.test_orders.OrderBuilderTests.test_build_merges_duplicate_skus) ... ERROR
+test_build_produces_order_with_lines (tests.test_orders.OrderBuilderTests.test_build_produces_order_with_lines) ... ok
+test_build_propagates_bad_order_id (tests.test_orders.OrderBuilderTests.test_build_propagates_bad_order_id) ... ok
+test_build_twice_creates_independent_orders (tests.test_orders.OrderBuilderTests.test_build_twice_creates_independent_orders) ... ERROR
+test_constructor_type_checks (tests.test_orders.OrderBuilderTests.test_constructor_type_checks) ... ok
+test_for_customer_is_classmethod_returning_subclass (tests.test_orders.OrderBuilderTests.test_for_customer_is_classmethod_returning_subclass) ... ok
+test_for_customer_uses_flat_pricing (tests.test_orders.OrderBuilderTests.test_for_customer_uses_flat_pricing) ... ok
+test_len_and_bool (tests.test_orders.OrderBuilderTests.test_len_and_bool) ... ok
+test_customer_property (tests.test_orders.OrderConstructionTests.test_customer_property) ... ok
+test_empty_order_id_rejected (tests.test_orders.OrderConstructionTests.test_empty_order_id_rejected) ... ok
+test_initial_state (tests.test_orders.OrderConstructionTests.test_initial_state) ... ERROR
+test_non_customer_rejected (tests.test_orders.OrderConstructionTests.test_non_customer_rejected) ... ok
+test_non_pricing_rejected (tests.test_orders.OrderConstructionTests.test_non_pricing_rejected) ... ok
+test_non_str_order_id_rejected (tests.test_orders.OrderConstructionTests.test_non_str_order_id_rejected) ... ok
+test_items_is_tuple_copy (tests.test_orders.OrderContainerTests.test_items_is_tuple_copy) ... ok
+test_iter_is_snapshot (tests.test_orders.OrderContainerTests.test_iter_is_snapshot) ... ok
+test_iter_yields_line_items (tests.test_orders.OrderContainerTests.test_iter_yields_line_items) ... ok
+test_len (tests.test_orders.OrderContainerTests.test_len) ... ERROR
+test_eq_non_order_returns_not_implemented (tests.test_orders.OrderEqualityTests.test_eq_non_order_returns_not_implemented) ... ok
+test_equal_by_order_id (tests.test_orders.OrderEqualityTests.test_equal_by_order_id) ... ok
+test_hash_by_id (tests.test_orders.OrderEqualityTests.test_hash_by_id) ... ok
+test_not_equal_different_id (tests.test_orders.OrderEqualityTests.test_not_equal_different_id) ... ok
+test_repr_includes_status (tests.test_orders.OrderEqualityTests.test_repr_includes_status) ... ERROR
+test_by_status_filters (tests.test_orders.OrderLogTests.test_by_status_filters) ... ERROR
+test_by_status_is_lazy_generator (tests.test_orders.OrderLogTests.test_by_status_is_lazy_generator) ... ERROR
+test_by_status_non_status_raises_on_first_next (tests.test_orders.OrderLogTests.test_by_status_non_status_raises_on_first_next) ... ok
+test_getitem_negative_index (tests.test_orders.OrderLogTests.test_getitem_negative_index) ... ok
+test_getitem_out_of_range_raises_index_error (tests.test_orders.OrderLogTests.test_getitem_out_of_range_raises_index_error) ... ok
+test_iter_is_generator_snapshot_taken_on_first_next (tests.test_orders.OrderLogTests.test_iter_is_generator_snapshot_taken_on_first_next) ... ok
+test_iter_snapshot_isolated_after_first_next (tests.test_orders.OrderLogTests.test_iter_snapshot_isolated_after_first_next) ... ok
+test_iter_yields_in_insertion_order (tests.test_orders.OrderLogTests.test_iter_yields_in_insertion_order) ... ok
+test_record_appends_in_order (tests.test_orders.OrderLogTests.test_record_appends_in_order) ... ok
+test_record_duplicate_id_rejected (tests.test_orders.OrderLogTests.test_record_duplicate_id_rejected) ... ok
+test_record_non_order_rejected (tests.test_orders.OrderLogTests.test_record_non_order_rejected) ... ok
+test_starts_empty (tests.test_orders.OrderLogTests.test_starts_empty) ... ok
+test_allowed_from_non_status_raises (tests.test_orders.OrderStateMachineTests.test_allowed_from_non_status_raises) ... ok
+test_allowed_from_returns_frozenset (tests.test_orders.OrderStateMachineTests.test_allowed_from_returns_frozenset) ... ok
+test_allowed_from_terminal_is_empty (tests.test_orders.OrderStateMachineTests.test_allowed_from_terminal_is_empty) ... ok
+test_call_is_alias_for_transition (tests.test_orders.OrderStateMachineTests.test_call_is_alias_for_transition) ... FAIL
+test_new_can_reach_reserved_and_cancelled (tests.test_orders.OrderStateMachineTests.test_new_can_reach_reserved_and_cancelled) ... ok
+test_new_cannot_ship_directly (tests.test_orders.OrderStateMachineTests.test_new_cannot_ship_directly) ... ok
+test_reserved_can_ship_or_cancel (tests.test_orders.OrderStateMachineTests.test_reserved_can_ship_or_cancel) ... ok
+test_reserved_cannot_return_to_new (tests.test_orders.OrderStateMachineTests.test_reserved_cannot_return_to_new) ... ok
+test_terminal_states_have_no_outgoing (tests.test_orders.OrderStateMachineTests.test_terminal_states_have_no_outgoing) ... ok
+test_transition_illegal_raises (tests.test_orders.OrderStateMachineTests.test_transition_illegal_raises) ... FAIL
+test_transition_returns_target_when_legal (tests.test_orders.OrderStateMachineTests.test_transition_returns_target_when_legal) ... FAIL
+test_total_empty_is_zero (tests.test_orders.OrderTotalTests.test_total_empty_is_zero) ... ok
+test_total_reflects_merged_quantities_for_bulk_discount (tests.test_orders.OrderTotalTests.test_total_reflects_merged_quantities_for_bulk_discount) ... FAIL
+test_total_uses_pricing_strategy (tests.test_orders.OrderTotalTests.test_total_uses_pricing_strategy) ... ok
+test_all_matches_expected_exports (tests.test_package.PackageInitTests.test_all_matches_expected_exports) ... ok
+test_every_export_resolves (tests.test_package.PackageInitTests.test_every_export_resolves) ... ok
+test_import_has_no_output_side_effects (tests.test_package.PackageInitTests.test_import_has_no_output_side_effects) ... ok
+test_reexports_are_the_defining_objects (tests.test_package.PackageInitTests.test_reexports_are_the_defining_objects) ... ok
+test_reload_keeps_version (tests.test_package.PackageInitTests.test_reload_keeps_version) ... ok
+test_version (tests.test_package.PackageInitTests.test_version) ... ok
+test_base_must_be_strategy (tests.test_pricing.BulkDiscountConstructionTests.test_base_must_be_strategy) ... ok
+test_is_pricing_strategy (tests.test_pricing.BulkDiscountConstructionTests.test_is_pricing_strategy) ... ok
+test_percent_off_above_100_rejected (tests.test_pricing.BulkDiscountConstructionTests.test_percent_off_above_100_rejected) ... ok
+test_percent_off_bool_rejected (tests.test_pricing.BulkDiscountConstructionTests.test_percent_off_bool_rejected) ... ok
+test_percent_off_boundaries_accepted (tests.test_pricing.BulkDiscountConstructionTests.test_percent_off_boundaries_accepted) ... ok
+test_percent_off_float_rejected (tests.test_pricing.BulkDiscountConstructionTests.test_percent_off_float_rejected) ... ok
+test_percent_off_negative_rejected (tests.test_pricing.BulkDiscountConstructionTests.test_percent_off_negative_rejected) ... ok
+test_repr (tests.test_pricing.BulkDiscountConstructionTests.test_repr) ... ok
+test_stores_fields (tests.test_pricing.BulkDiscountConstructionTests.test_stores_fields) ... ok
+test_threshold_validated (tests.test_pricing.BulkDiscountConstructionTests.test_threshold_validated) ... ok
+test_at_threshold_applies_discount (tests.test_pricing.BulkDiscountPriceTests.test_at_threshold_applies_discount) ... FAIL
+test_below_threshold_returns_base_total (tests.test_pricing.BulkDiscountPriceTests.test_below_threshold_returns_base_total) ... FAIL
+test_call_matches_price (tests.test_pricing.BulkDiscountPriceTests.test_call_matches_price) ... ok
+test_discount_uses_floor_division (tests.test_pricing.BulkDiscountPriceTests.test_discount_uses_floor_division) ... FAIL
+test_empty_items_below_threshold (tests.test_pricing.BulkDiscountPriceTests.test_empty_items_below_threshold) ... FAIL
+test_full_discount_yields_zero (tests.test_pricing.BulkDiscountPriceTests.test_full_discount_yields_zero) ... FAIL
+test_quantity_summed_across_lines (tests.test_pricing.BulkDiscountPriceTests.test_quantity_summed_across_lines) ... FAIL
+test_wraps_base_with_tax (tests.test_pricing.BulkDiscountPriceTests.test_wraps_base_with_tax) ... FAIL
+test_zero_percent_returns_base_even_above_threshold (tests.test_pricing.BulkDiscountPriceTests.test_zero_percent_returns_base_even_above_threshold) ... FAIL
+test_above_max_rejected (tests.test_pricing.FlatPricingConstructionTests.test_above_max_rejected) ... ok
+test_bool_rejected (tests.test_pricing.FlatPricingConstructionTests.test_bool_rejected) ... ok
+test_boundaries_accepted (tests.test_pricing.FlatPricingConstructionTests.test_boundaries_accepted) ... ok
+test_default_tax_is_zero (tests.test_pricing.FlatPricingConstructionTests.test_default_tax_is_zero) ... ok
+test_float_rejected (tests.test_pricing.FlatPricingConstructionTests.test_float_rejected) ... ok
+test_is_pricing_strategy (tests.test_pricing.FlatPricingConstructionTests.test_is_pricing_strategy) ... ok
+test_negative_rejected (tests.test_pricing.FlatPricingConstructionTests.test_negative_rejected) ... ok
+test_stores_tax (tests.test_pricing.FlatPricingConstructionTests.test_stores_tax) ... ok
+test_call_matches_price (tests.test_pricing.FlatPricingPriceTests.test_call_matches_price) ... ok
+test_empty_items_with_tax_is_zero (tests.test_pricing.FlatPricingPriceTests.test_empty_items_with_tax_is_zero) ... ok
+test_empty_items_zero_tax_is_zero (tests.test_pricing.FlatPricingPriceTests.test_empty_items_zero_tax_is_zero) ... ok
+test_full_tax_doubles_amount (tests.test_pricing.FlatPricingPriceTests.test_full_tax_doubles_amount) ... ok
+test_tax_applied_with_floor_division (tests.test_pricing.FlatPricingPriceTests.test_tax_applied_with_floor_division) ... ok
+test_tax_rounds_down (tests.test_pricing.FlatPricingPriceTests.test_tax_rounds_down) ... ok
+test_zero_tax_returns_subtotal (tests.test_pricing.FlatPricingPriceTests.test_zero_tax_returns_subtotal) ... ok
+test_add_duplicate_raises (tests.test_repository.InMemoryRepositoryAddTests.test_add_duplicate_raises) ... ok
+test_add_non_entity_rejected (tests.test_repository.InMemoryRepositoryAddTests.test_add_non_entity_rejected) ... ok
+test_add_then_get (tests.test_repository.InMemoryRepositoryAddTests.test_add_then_get) ... ok
+test_add_wrong_type_rejected (tests.test_repository.InMemoryRepositoryAddTests.test_add_wrong_type_rejected) ... ok
+test_duplicate_check_keeps_original (tests.test_repository.InMemoryRepositoryAddTests.test_duplicate_check_keeps_original) ... ok
+test_subclass_instances_accepted (tests.test_repository.InMemoryRepositoryAddTests.test_subclass_instances_accepted) ... ok
+test_is_repository (tests.test_repository.InMemoryRepositoryConstructionTests.test_is_repository) ... ok
+test_new_repo_is_empty (tests.test_repository.InMemoryRepositoryConstructionTests.test_new_repo_is_empty) ... ok
+test_non_type_rejected (tests.test_repository.InMemoryRepositoryConstructionTests.test_non_type_rejected) ... ok
+test_contains_absent (tests.test_repository.InMemoryRepositoryContainsTests.test_contains_absent) ... ok
+test_contains_does_not_use_get (tests.test_repository.InMemoryRepositoryContainsTests.test_contains_does_not_use_get) ... ok
+test_contains_non_str_is_false (tests.test_repository.InMemoryRepositoryContainsTests.test_contains_non_str_is_false) ... ok
+test_contains_present (tests.test_repository.InMemoryRepositoryContainsTests.test_contains_present) ... ok
+test_get_missing_raises_key_error (tests.test_repository.InMemoryRepositoryGetRemoveTests.test_get_missing_raises_key_error) ... ok
+test_get_non_str_raises_type_error (tests.test_repository.InMemoryRepositoryGetRemoveTests.test_get_non_str_raises_type_error) ... ok
+test_remove_missing_raises_key_error (tests.test_repository.InMemoryRepositoryGetRemoveTests.test_remove_missing_raises_key_error) ... ok
+test_remove_returns_item_and_deletes (tests.test_repository.InMemoryRepositoryGetRemoveTests.test_remove_returns_item_and_deletes) ... ok
+test_remove_then_add_again_succeeds (tests.test_repository.InMemoryRepositoryGetRemoveTests.test_remove_then_add_again_succeeds) ... ok
+test_iter_empty (tests.test_repository.InMemoryRepositoryLenIterTests.test_iter_empty) ... ok
+test_iter_is_a_generator_over_snapshot_keys (tests.test_repository.InMemoryRepositoryLenIterTests.test_iter_is_a_generator_over_snapshot_keys) ... ok
+test_iter_sorted_by_key (tests.test_repository.InMemoryRepositoryLenIterTests.test_iter_sorted_by_key) ... ok
+test_len_counts_items (tests.test_repository.InMemoryRepositoryLenIterTests.test_len_counts_items) ... ok
+test_customer_repository_rejects_product (tests.test_repository.InMemoryRepositoryWithProductsTests.test_customer_repository_rejects_product) ... ok
+test_product_repository_roundtrip (tests.test_repository.InMemoryRepositoryWithProductsTests.test_product_repository_roundtrip) ... ok
+test_each_call_returns_independent_warehouse (tests.test_simulation.BuildDefaultWarehouseTests.test_each_call_returns_independent_warehouse) ... ok
+test_products_have_expected_prices (tests.test_simulation.BuildDefaultWarehouseTests.test_products_have_expected_prices) ... ok
+test_returns_warehouse_with_three_skus_each_20 (tests.test_simulation.BuildDefaultWarehouseTests.test_returns_warehouse_with_three_skus_each_20) ... FAIL
+test_bool_seed_rejected (tests.test_simulation.RunSimulationTests.test_bool_seed_rejected) ... ok
+test_deterministic_for_same_seed (tests.test_simulation.RunSimulationTests.test_deterministic_for_same_seed) ... ok
+test_non_int_seed_rejected (tests.test_simulation.RunSimulationTests.test_non_int_seed_rejected) ... ok
+test_non_int_steps_rejected (tests.test_simulation.RunSimulationTests.test_non_int_steps_rejected) ... ok
+test_non_positive_steps_rejected (tests.test_simulation.RunSimulationTests.test_non_positive_steps_rejected) ... ok
+test_returns_report_with_totals (tests.test_simulation.RunSimulationTests.test_returns_report_with_totals) ... ok
+test_add_customer_non_customer_rejected (tests.test_simulation.SimulationConstructionTests.test_add_customer_non_customer_rejected) ... ok
+test_creates_default_bus_and_collaborators (tests.test_simulation.SimulationConstructionTests.test_creates_default_bus_and_collaborators) ... ok
+test_no_customers_step_returns_none (tests.test_simulation.SimulationConstructionTests.test_no_customers_step_returns_none) ... ok
+test_pricing_type_checked (tests.test_simulation.SimulationConstructionTests.test_pricing_type_checked) ... ok
+test_uses_supplied_bus (tests.test_simulation.SimulationConstructionTests.test_uses_supplied_bus) ... ok
+test_warehouse_type_checked (tests.test_simulation.SimulationConstructionTests.test_warehouse_type_checked) ... ok
+test_add_revenue_accumulates (tests.test_simulation.SimulationReportTests.test_add_revenue_accumulates) ... ok
+test_add_revenue_non_money_rejected (tests.test_simulation.SimulationReportTests.test_add_revenue_non_money_rejected) ... ok
+test_defaults (tests.test_simulation.SimulationReportTests.test_defaults) ... ok
+test_record_cancelled (tests.test_simulation.SimulationReportTests.test_record_cancelled) ... ok
+test_record_created (tests.test_simulation.SimulationReportTests.test_record_created) ... ok
+test_record_is_case_sensitive (tests.test_simulation.SimulationReportTests.test_record_is_case_sensitive) ... ok
+test_record_rejected (tests.test_simulation.SimulationReportTests.test_record_rejected) ... ok
+test_record_shipped (tests.test_simulation.SimulationReportTests.test_record_shipped) ... ok
+test_record_unknown_kind_rejected (tests.test_simulation.SimulationReportTests.test_record_unknown_kind_rejected) ... ok
+test_str_is_multiline_summary (tests.test_simulation.SimulationReportTests.test_str_is_multiline_summary) ... ok
+test_summary_contents (tests.test_simulation.SimulationReportTests.test_summary_contents) ... ok
+test_summary_zero_revenue_formatted (tests.test_simulation.SimulationReportTests.test_summary_zero_revenue_formatted) ... ok
+test_run_non_int_rejected (tests.test_simulation.SimulationRunTests.test_run_non_int_rejected) ... ok
+test_run_returns_report (tests.test_simulation.SimulationRunTests.test_run_returns_report) ... ok
+test_run_zero_rejected (tests.test_simulation.SimulationRunTests.test_run_zero_rejected) ... ok
+test_cancel_path_releases_reservation (tests.test_simulation.SimulationStepTests.test_cancel_path_releases_reservation) ... FAIL
+test_empty_ledger_no_skus_records_rejected (tests.test_simulation.SimulationStepTests.test_empty_ledger_no_skus_records_rejected) ... ok
+test_no_stock_records_rejected_and_returns_none (tests.test_simulation.SimulationStepTests.test_no_stock_records_rejected_and_returns_none) ... ok
+test_order_ids_are_sequential (tests.test_simulation.SimulationStepTests.test_order_ids_are_sequential) ... ok
+test_order_line_has_unit_price_1000_and_quantity_1_to_3 (tests.test_simulation.SimulationStepTests.test_order_line_has_unit_price_1000_and_quantity_1_to_3) ... ERROR
+test_rejected_when_reserve_fails (tests.test_simulation.SimulationStepTests.test_rejected_when_reserve_fails) ... ok
+test_reserved_event_payload_fields (tests.test_simulation.SimulationStepTests.test_reserved_event_payload_fields) ... ok
+test_same_seed_is_reproducible (tests.test_simulation.SimulationStepTests.test_same_seed_is_reproducible) ... ERROR
+test_shipped_path_publishes_and_adds_revenue (tests.test_simulation.SimulationStepTests.test_shipped_path_publishes_and_adds_revenue) ... FAIL
+test_step_returns_order_and_accounts_for_it (tests.test_simulation.SimulationStepTests.test_step_returns_order_and_accounts_for_it) ... FAIL
+test_terminal_event_published_once_per_step (tests.test_simulation.SimulationStepTests.test_terminal_event_published_once_per_step) ... ok
+test_accepts_generator_input (tests.test_util.ChunkedTests.test_accepts_generator_input) ... ok
+test_chunks_are_lists (tests.test_util.ChunkedTests.test_chunks_are_lists) ... ok
+test_empty_input_yields_nothing (tests.test_util.ChunkedTests.test_empty_input_yields_nothing) ... ok
+test_even_split (tests.test_util.ChunkedTests.test_even_split) ... ok
+test_invalid_size_bool_raises_type_error (tests.test_util.ChunkedTests.test_invalid_size_bool_raises_type_error) ... ok
+test_invalid_size_float_raises_type_error (tests.test_util.ChunkedTests.test_invalid_size_float_raises_type_error) ... ok
+test_invalid_size_negative_raises_on_first_next (tests.test_util.ChunkedTests.test_invalid_size_negative_raises_on_first_next) ... ok
+test_invalid_size_zero_raises_on_first_next (tests.test_util.ChunkedTests.test_invalid_size_zero_raises_on_first_next) ... ok
+test_partial_final_chunk (tests.test_util.ChunkedTests.test_partial_final_chunk) ... ok
+test_size_equal_to_input_length (tests.test_util.ChunkedTests.test_size_equal_to_input_length) ... ok
+test_size_larger_than_input (tests.test_util.ChunkedTests.test_size_larger_than_input) ... ok
+test_size_one (tests.test_util.ChunkedTests.test_size_one) ... ok
+test_bool_rejected_with_name_in_message (tests.test_util.EnsurePositiveIntTests.test_bool_rejected_with_name_in_message) ... ok
+test_false_rejected (tests.test_util.EnsurePositiveIntTests.test_false_rejected) ... ok
+test_float_rejected (tests.test_util.EnsurePositiveIntTests.test_float_rejected) ... ok
+test_negative_rejected (tests.test_util.EnsurePositiveIntTests.test_negative_rejected) ... ok
+test_none_rejected (tests.test_util.EnsurePositiveIntTests.test_none_rejected) ... ok
+test_returns_value_when_positive (tests.test_util.EnsurePositiveIntTests.test_returns_value_when_positive) ... ok
+test_str_rejected (tests.test_util.EnsurePositiveIntTests.test_str_rejected) ... ok
+test_zero_rejected (tests.test_util.EnsurePositiveIntTests.test_zero_rejected) ... ok
+test_bool_rejected (tests.test_util.FormatCentsTests.test_bool_rejected) ... ok
+test_float_rejected (tests.test_util.FormatCentsTests.test_float_rejected) ... ok
+test_large_amount (tests.test_util.FormatCentsTests.test_large_amount) ... ok
+test_negative_rejected (tests.test_util.FormatCentsTests.test_negative_rejected) ... ok
+test_pads_single_digit_cents (tests.test_util.FormatCentsTests.test_pads_single_digit_cents) ... ok
+test_str_rejected (tests.test_util.FormatCentsTests.test_str_rejected) ... ok
+test_typical_amount (tests.test_util.FormatCentsTests.test_typical_amount) ... ok
+test_whole_dollars (tests.test_util.FormatCentsTests.test_whole_dollars) ... ok
+test_zero (tests.test_util.FormatCentsTests.test_zero) ... ok
+test_accepts_maximum_length (tests.test_util.NormalizeSkuTests.test_accepts_maximum_length) ... ok
+test_accepts_minimum_length (tests.test_util.NormalizeSkuTests.test_accepts_minimum_length) ... ok
+test_allows_digits_and_dashes (tests.test_util.NormalizeSkuTests.test_allows_digits_and_dashes) ... ok
+test_invalid_characters_inner_space (tests.test_util.NormalizeSkuTests.test_invalid_characters_inner_space) ... ok
+test_invalid_characters_non_ascii (tests.test_util.NormalizeSkuTests.test_invalid_characters_non_ascii) ... ok
+test_invalid_characters_punctuation (tests.test_util.NormalizeSkuTests.test_invalid_characters_punctuation) ... ok
+test_invalid_characters_underscore (tests.test_util.NormalizeSkuTests.test_invalid_characters_underscore) ... ok
+test_length_checked_after_strip (tests.test_util.NormalizeSkuTests.test_length_checked_after_strip) ... ok
+test_non_str_raises_type_error (tests.test_util.NormalizeSkuTests.test_non_str_raises_type_error) ... ok
+test_padding_does_not_count_toward_length (tests.test_util.NormalizeSkuTests.test_padding_does_not_count_toward_length) ... ok
+test_rejects_above_maximum_length (tests.test_util.NormalizeSkuTests.test_rejects_above_maximum_length) ... ok
+test_rejects_below_minimum_length (tests.test_util.NormalizeSkuTests.test_rejects_below_minimum_length) ... ok
+test_uppercases_and_strips (tests.test_util.NormalizeSkuTests.test_uppercases_and_strips) ... ok
+
+======================================================================
+ERROR: test_can_afford_accounts_for_existing_balance (tests.test_models.CustomerTests.test_can_afford_accounts_for_existing_balance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_models.py", line 459, in test_can_afford_accounts_for_existing_balance
+    c.charge(Money(600))
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\playground\models.py", line 267, in charge
+    raise ValueError("credit limit exceeded")
+ValueError: credit limit exceeded
+
+======================================================================
+ERROR: test_charge_exactly_to_limit_allowed (tests.test_models.CustomerTests.test_charge_exactly_to_limit_allowed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_models.py", line 483, in test_charge_exactly_to_limit_allowed
+    c.charge(Money(100))
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\playground\models.py", line 267, in charge
+    raise ValueError("credit limit exceeded")
+ValueError: credit limit exceeded
+
+======================================================================
+ERROR: test_charge_increases_balance (tests.test_models.CustomerTests.test_charge_increases_balance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_models.py", line 469, in test_charge_increases_balance
+    c.charge(Money(300))
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\playground\models.py", line 267, in charge
+    raise ValueError("credit limit exceeded")
+ValueError: credit limit exceeded
+
+======================================================================
+ERROR: test_charge_non_money_propagates_type_error (tests.test_models.CustomerTests.test_charge_non_money_propagates_type_error)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_models.py", line 488, in test_charge_non_money_propagates_type_error
+    Customer("C-1", "A", Money(100)).charge(5)  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\playground\models.py", line 267, in charge
+    raise ValueError("credit limit exceeded")
+ValueError: credit limit exceeded
+
+======================================================================
+ERROR: test_bool_false_for_zero (tests.test_models.MoneyMiscTests.test_bool_false_for_zero)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_models.py", line 172, in test_bool_false_for_zero
+    self.assertFalse(bool(Money(0)))
+                     ^^^^^^^^^^^^^^
+TypeError: __bool__ should return bool, returned NoneType
+
+======================================================================
+ERROR: test_bool_true_for_nonzero (tests.test_models.MoneyMiscTests.test_bool_true_for_nonzero)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_models.py", line 175, in test_bool_true_for_nonzero
+    self.assertTrue(bool(Money(1)))
+                    ^^^^^^^^^^^^^^
+TypeError: __bool__ should return bool, returned NoneType
+
+======================================================================
+ERROR: test_add_appends_new_sku (tests.test_orders.OrderAddItemTests.test_add_appends_new_sku)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 113, in test_add_appends_new_sku
+    self.assertEqual(len(self.order), 2)
+                     ^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object cannot be interpreted as an integer
+
+======================================================================
+ERROR: test_add_same_sku_merges_quantity (tests.test_orders.OrderAddItemTests.test_add_same_sku_merges_quantity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 119, in test_add_same_sku_merges_quantity
+    self.assertEqual(len(self.order), 1)
+                     ^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object cannot be interpreted as an integer
+
+======================================================================
+ERROR: test_build_merges_duplicate_skus (tests.test_orders.OrderBuilderTests.test_build_merges_duplicate_skus)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 306, in test_build_merges_duplicate_skus
+    self.assertEqual(len(order), 1)
+                     ^^^^^^^^^^
+TypeError: 'NoneType' object cannot be interpreted as an integer
+
+======================================================================
+ERROR: test_build_twice_creates_independent_orders (tests.test_orders.OrderBuilderTests.test_build_twice_creates_independent_orders)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 315, in test_build_twice_creates_independent_orders
+    self.assertEqual(len(o1), 1)
+                     ^^^^^^^
+TypeError: 'NoneType' object cannot be interpreted as an integer
+
+======================================================================
+ERROR: test_initial_state (tests.test_orders.OrderConstructionTests.test_initial_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 82, in test_initial_state
+    self.assertEqual(len(o), 0)
+                     ^^^^^^
+TypeError: 'NoneType' object cannot be interpreted as an integer
+
+======================================================================
+ERROR: test_len (tests.test_orders.OrderContainerTests.test_len)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 215, in test_len
+    self.assertEqual(len(self.order), 2)
+                     ^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object cannot be interpreted as an integer
+
+======================================================================
+ERROR: test_repr_includes_status (tests.test_orders.OrderEqualityTests.test_repr_includes_status)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 245, in test_repr_includes_status
+    self.assertEqual(repr(o), "Order('ORD-7', cancelled)")
+                     ^^^^^^^
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\playground\orders.py", line 122, in __repr__
+    return f"Order({self._order_id!r}, {self._status.value})"
+                                        ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'value'
+
+======================================================================
+ERROR: test_by_status_filters (tests.test_orders.OrderLogTests.test_by_status_filters)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 396, in test_by_status_filters
+    self.assertEqual([o.order_id for o in self.log.by_status(OrderStatus.NEW)], ["ORD-1"])
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not iterable
+
+======================================================================
+ERROR: test_by_status_is_lazy_generator (tests.test_orders.OrderLogTests.test_by_status_is_lazy_generator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 404, in test_by_status_is_lazy_generator
+    self.assertEqual(list(gen), [])
+                     ^^^^^^^^^
+TypeError: 'NoneType' object is not iterable
+
+======================================================================
+ERROR: test_order_line_has_unit_price_1000_and_quantity_1_to_3 (tests.test_simulation.SimulationStepTests.test_order_line_has_unit_price_1000_and_quantity_1_to_3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_simulation.py", line 183, in test_order_line_has_unit_price_1000_and_quantity_1_to_3
+    self.assertEqual(len(order), 1)
+                     ^^^^^^^^^^
+TypeError: 'NoneType' object cannot be interpreted as an integer
+
+======================================================================
+ERROR: test_same_seed_is_reproducible (tests.test_simulation.SimulationStepTests.test_same_seed_is_reproducible)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_simulation.py", line 261, in test_same_seed_is_reproducible
+    self.assertEqual(run(42), run(42))
+                     ^^^^^^^
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_simulation.py", line 259, in run
+    return [sim.step().status.value for _ in range(15)]
+            ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'value'
+
+======================================================================
+FAIL: test_cancelled_is_terminal (tests.test_enums.OrderStatusTests.test_cancelled_is_terminal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_enums.py", line 61, in test_cancelled_is_terminal
+    self.assertIs(OrderStatus.CANCELLED.is_terminal, True)
+AssertionError: None is not True
+
+======================================================================
+FAIL: test_new_is_not_terminal (tests.test_enums.OrderStatusTests.test_new_is_not_terminal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_enums.py", line 64, in test_new_is_not_terminal
+    self.assertIs(OrderStatus.NEW.is_terminal, False)
+AssertionError: None is not False
+
+======================================================================
+FAIL: test_reserved_is_not_terminal (tests.test_enums.OrderStatusTests.test_reserved_is_not_terminal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_enums.py", line 67, in test_reserved_is_not_terminal
+    self.assertIs(OrderStatus.RESERVED.is_terminal, False)
+AssertionError: None is not False
+
+======================================================================
+FAIL: test_shipped_is_terminal (tests.test_enums.OrderStatusTests.test_shipped_is_terminal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_enums.py", line 58, in test_shipped_is_terminal
+    self.assertIs(OrderStatus.SHIPPED.is_terminal, True)
+AssertionError: None is not True
+
+======================================================================
+FAIL: test_contains_true_with_handler (tests.test_events.EventBusContainsTests.test_contains_true_with_handler)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_events.py", line 159, in test_contains_true_with_handler
+    self.assertIn(EventType.ORDER_SHIPPED, bus)
+AssertionError: <EventType.ORDER_SHIPPED: 4> not found in <playground.events.EventBus object at 0x0000026474FD1A60>
+
+======================================================================
+FAIL: test_subscribe_registers_handler (tests.test_events.EventBusSubscribeTests.test_subscribe_registers_handler)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_events.py", line 22, in test_subscribe_registers_handler
+    self.assertIn(EventType.STOCK_ADDED, self.bus)
+AssertionError: <EventType.STOCK_ADDED: 1> not found in <playground.events.EventBus object at 0x0000026474F47200>
+
+======================================================================
+FAIL: test_contains_normalized_present (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_contains_normalized_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_inventory.py", line 222, in test_contains_normalized_present
+    self.assertTrue(" el-1001 " in self.ledger)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_contains_present_even_if_zero_on_hand_after_commit (tests.test_inventory.InventoryLedgerContainsLenIterTests.test_contains_present_even_if_zero_on_hand_after_commit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_inventory.py", line 232, in test_contains_present_even_if_zero_on_hand_after_commit
+    self.assertTrue("EL-1001" in self.ledger)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_stock_report_empty (tests.test_inventory.WarehouseTests.test_stock_report_empty)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_inventory.py", line 400, in test_stock_report_empty
+    self.assertEqual(self.wh.stock_report(), {})
+AssertionError: None != {}
+
+======================================================================
+FAIL: test_stock_report_lists_available (tests.test_inventory.WarehouseTests.test_stock_report_lists_available)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_inventory.py", line 397, in test_stock_report_lists_available
+    self.assertEqual(self.wh.stock_report(), {"EL-1001": 1, "GR-2001": 3})
+AssertionError: None != {'EL-1001': 1, 'GR-2001': 3}
+
+======================================================================
+FAIL: test_can_afford_non_money_rejected (tests.test_models.CustomerTests.test_can_afford_non_money_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_models.py", line 464, in test_can_afford_non_money_rejected
+    with self.assertRaises(TypeError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: TypeError not raised
+
+======================================================================
+FAIL: test_can_afford_true_within_limit (tests.test_models.CustomerTests.test_can_afford_true_within_limit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_models.py", line 451, in test_can_afford_true_within_limit
+    self.assertTrue(c.can_afford(Money(1000)))
+AssertionError: None is not true
+
+======================================================================
+FAIL: test_add_after_advance_rejected (tests.test_orders.OrderAddItemTests.test_add_after_advance_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 138, in test_add_after_advance_rejected
+    self.assertIs(ctx.exception.source, OrderStatus.RESERVED)
+AssertionError: None is not <OrderStatus.RESERVED: 'reserved'>
+
+======================================================================
+FAIL: test_advance_from_terminal_raises (tests.test_orders.OrderAdvanceTests.test_advance_from_terminal_raises)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 175, in test_advance_from_terminal_raises
+    with self.assertRaises(InvalidTransitionError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidTransitionError not raised
+
+======================================================================
+FAIL: test_advance_to_same_status_raises (tests.test_orders.OrderAdvanceTests.test_advance_to_same_status_raises)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 180, in test_advance_to_same_status_raises
+    with self.assertRaises(InvalidTransitionError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidTransitionError not raised
+
+======================================================================
+FAIL: test_cancel_from_new (tests.test_orders.OrderAdvanceTests.test_cancel_from_new)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 158, in test_cancel_from_new
+    self.assertIs(o.status, OrderStatus.CANCELLED)
+AssertionError: None is not <OrderStatus.CANCELLED: 'cancelled'>
+
+======================================================================
+FAIL: test_cancel_from_reserved (tests.test_orders.OrderAdvanceTests.test_cancel_from_reserved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 164, in test_cancel_from_reserved
+    self.assertIs(o.status, OrderStatus.CANCELLED)
+AssertionError: None is not <OrderStatus.CANCELLED: 'cancelled'>
+
+======================================================================
+FAIL: test_happy_path_to_shipped (tests.test_orders.OrderAdvanceTests.test_happy_path_to_shipped)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 151, in test_happy_path_to_shipped
+    self.assertIs(o.status, OrderStatus.RESERVED)
+AssertionError: None is not <OrderStatus.RESERVED: 'reserved'>
+
+======================================================================
+FAIL: test_illegal_advance_raises_and_keeps_status (tests.test_orders.OrderAdvanceTests.test_illegal_advance_raises_and_keeps_status)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 168, in test_illegal_advance_raises_and_keeps_status
+    with self.assertRaises(InvalidTransitionError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidTransitionError not raised
+
+======================================================================
+FAIL: test_call_is_alias_for_transition (tests.test_orders.OrderStateMachineTests.test_call_is_alias_for_transition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 70, in test_call_is_alias_for_transition
+    self.assertIs(sm(OrderStatus.RESERVED, OrderStatus.SHIPPED), OrderStatus.SHIPPED)
+AssertionError: None is not <OrderStatus.SHIPPED: 'shipped'>
+
+======================================================================
+FAIL: test_transition_illegal_raises (tests.test_orders.OrderStateMachineTests.test_transition_illegal_raises)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 63, in test_transition_illegal_raises
+    with self.assertRaises(InvalidTransitionError) as ctx:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidTransitionError not raised
+
+======================================================================
+FAIL: test_transition_returns_target_when_legal (tests.test_orders.OrderStateMachineTests.test_transition_returns_target_when_legal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 60, in test_transition_returns_target_when_legal
+    self.assertIs(sm.transition(OrderStatus.NEW, OrderStatus.RESERVED), OrderStatus.RESERVED)
+AssertionError: None is not <OrderStatus.RESERVED: 'reserved'>
+
+======================================================================
+FAIL: test_total_reflects_merged_quantities_for_bulk_discount (tests.test_orders.OrderTotalTests.test_total_reflects_merged_quantities_for_bulk_discount)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_orders.py", line 198, in test_total_reflects_merged_quantities_for_bulk_discount
+    self.assertEqual(o.total, Money(270))
+AssertionError: None != Money(270)
+
+======================================================================
+FAIL: test_at_threshold_applies_discount (tests.test_pricing.BulkDiscountPriceTests.test_at_threshold_applies_discount)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_pricing.py", line 127, in test_at_threshold_applies_discount
+    self.assertEqual(d.price(items), Money(2700))
+AssertionError: None != Money(2700)
+
+======================================================================
+FAIL: test_below_threshold_returns_base_total (tests.test_pricing.BulkDiscountPriceTests.test_below_threshold_returns_base_total)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_pricing.py", line 122, in test_below_threshold_returns_base_total
+    self.assertEqual(d.price(items), Money(2000))
+AssertionError: None != Money(2000)
+
+======================================================================
+FAIL: test_discount_uses_floor_division (tests.test_pricing.BulkDiscountPriceTests.test_discount_uses_floor_division)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_pricing.py", line 144, in test_discount_uses_floor_division
+    self.assertEqual(d.price(items), Money(300))
+AssertionError: None != Money(300)
+
+======================================================================
+FAIL: test_empty_items_below_threshold (tests.test_pricing.BulkDiscountPriceTests.test_empty_items_below_threshold)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_pricing.py", line 159, in test_empty_items_below_threshold
+    self.assertEqual(d.price([]), Money(0))
+AssertionError: None != Money(0)
+
+======================================================================
+FAIL: test_full_discount_yields_zero (tests.test_pricing.BulkDiscountPriceTests.test_full_discount_yields_zero)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_pricing.py", line 149, in test_full_discount_yields_zero
+    self.assertEqual(d.price(items), Money(0))
+AssertionError: None != Money(0)
+
+======================================================================
+FAIL: test_quantity_summed_across_lines (tests.test_pricing.BulkDiscountPriceTests.test_quantity_summed_across_lines)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_pricing.py", line 133, in test_quantity_summed_across_lines
+    self.assertEqual(d.price(items), Money(1080))
+AssertionError: None != Money(1080)
+
+======================================================================
+FAIL: test_wraps_base_with_tax (tests.test_pricing.BulkDiscountPriceTests.test_wraps_base_with_tax)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_pricing.py", line 155, in test_wraps_base_with_tax
+    self.assertEqual(d.price(items), Money(990))
+AssertionError: None != Money(990)
+
+======================================================================
+FAIL: test_zero_percent_returns_base_even_above_threshold (tests.test_pricing.BulkDiscountPriceTests.test_zero_percent_returns_base_even_above_threshold)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_pricing.py", line 138, in test_zero_percent_returns_base_even_above_threshold
+    self.assertEqual(d.price(items), Money(500))
+AssertionError: None != Money(500)
+
+======================================================================
+FAIL: test_returns_warehouse_with_three_skus_each_20 (tests.test_simulation.BuildDefaultWarehouseTests.test_returns_warehouse_with_three_skus_each_20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_simulation.py", line 291, in test_returns_warehouse_with_three_skus_each_20
+    self.assertEqual(
+AssertionError: None != {'EL-1001': 20, 'GR-2001': 20, 'HW-3001': 20}
+
+======================================================================
+FAIL: test_cancel_path_releases_reservation (tests.test_simulation.SimulationStepTests.test_cancel_path_releases_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_simulation.py", line 219, in test_cancel_path_releases_reservation
+    self.assertIsNotNone(cancelled_order)
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_shipped_path_publishes_and_adds_revenue (tests.test_simulation.SimulationStepTests.test_shipped_path_publishes_and_adds_revenue)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_simulation.py", line 199, in test_shipped_path_publishes_and_adds_revenue
+    self.fail("no shipped order produced")
+AssertionError: no shipped order produced
+
+======================================================================
+FAIL: test_step_returns_order_and_accounts_for_it (tests.test_simulation.SimulationStepTests.test_step_returns_order_and_accounts_for_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Dima\Desktop\mAIN\ZS\SE4AI\du6\AI4SE_Labs_2026\AI4SE_Playground\playground\tests\test_simulation.py", line 166, in test_step_returns_order_and_accounts_for_it
+    self.assertIn(order.status, (OrderStatus.SHIPPED, OrderStatus.CANCELLED))
+AssertionError: None not found in (<OrderStatus.SHIPPED: 'shipped'>, <OrderStatus.CANCELLED: 'cancelled'>)
+
+----------------------------------------------------------------------
+Ran 481 tests in 0.036s
+
+FAILED (failures=35, errors=17)

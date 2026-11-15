@@ -1,0 +1,1 @@
+{"file":"playground/playground/models.py","class":"Money","method":"__bool__","implementation":"def __bool__(self) -> bool:\n        \"\"\"Return True when the amount is non-zero.\"\"\"\n        return self._cents != 0\n"}

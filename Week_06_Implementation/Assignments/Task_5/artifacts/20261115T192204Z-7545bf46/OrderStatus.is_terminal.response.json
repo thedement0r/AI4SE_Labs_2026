@@ -1,0 +1,1 @@
+{"file":"playground/playground/enums.py","class":"OrderStatus","method":"is_terminal","implementation":"def is_terminal(self) -> bool:\n    return self in (OrderStatus.SHIPPED, OrderStatus.CANCELLED)\n"}

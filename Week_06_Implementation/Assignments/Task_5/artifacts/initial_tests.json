@@ -1,0 +1,220 @@
+{
+  "total": 481,
+  "passed": 429,
+  "failed": 35,
+  "errors": 17,
+  "skipped": 0,
+  "failures": [
+    {
+      "test": "tests.test_enums.OrderStatusTests.test_cancelled_is_terminal",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_enums.py\", line 61, in test_cancelled_is_terminal\n    self.assertIs(OrderStatus.CANCELLED.is_terminal, True)\nAssertionError: None is not True\n"
+    },
+    {
+      "test": "tests.test_enums.OrderStatusTests.test_new_is_not_terminal",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_enums.py\", line 64, in test_new_is_not_terminal\n    self.assertIs(OrderStatus.NEW.is_terminal, False)\nAssertionError: None is not False\n"
+    },
+    {
+      "test": "tests.test_enums.OrderStatusTests.test_reserved_is_not_terminal",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_enums.py\", line 67, in test_reserved_is_not_terminal\n    self.assertIs(OrderStatus.RESERVED.is_terminal, False)\nAssertionError: None is not False\n"
+    },
+    {
+      "test": "tests.test_enums.OrderStatusTests.test_shipped_is_terminal",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_enums.py\", line 58, in test_shipped_is_terminal\n    self.assertIs(OrderStatus.SHIPPED.is_terminal, True)\nAssertionError: None is not True\n"
+    },
+    {
+      "test": "tests.test_events.EventBusContainsTests.test_contains_true_with_handler",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_events.py\", line 159, in test_contains_true_with_handler\n    self.assertIn(EventType.ORDER_SHIPPED, bus)\nAssertionError: <EventType.ORDER_SHIPPED: 4> not found in <playground.events.EventBus object at 0x0000013E312929F0>\n"
+    },
+    {
+      "test": "tests.test_events.EventBusSubscribeTests.test_subscribe_registers_handler",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_events.py\", line 22, in test_subscribe_registers_handler\n    self.assertIn(EventType.STOCK_ADDED, self.bus)\nAssertionError: <EventType.STOCK_ADDED: 1> not found in <playground.events.EventBus object at 0x0000013E31290650>\n"
+    },
+    {
+      "test": "tests.test_inventory.InventoryLedgerContainsLenIterTests.test_contains_normalized_present",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_inventory.py\", line 222, in test_contains_normalized_present\n    self.assertTrue(\" el-1001 \" in self.ledger)\nAssertionError: False is not true\n"
+    },
+    {
+      "test": "tests.test_inventory.InventoryLedgerContainsLenIterTests.test_contains_present_even_if_zero_on_hand_after_commit",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_inventory.py\", line 232, in test_contains_present_even_if_zero_on_hand_after_commit\n    self.assertTrue(\"EL-1001\" in self.ledger)\nAssertionError: False is not true\n"
+    },
+    {
+      "test": "tests.test_inventory.WarehouseTests.test_stock_report_empty",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_inventory.py\", line 400, in test_stock_report_empty\n    self.assertEqual(self.wh.stock_report(), {})\nAssertionError: None != {}\n"
+    },
+    {
+      "test": "tests.test_inventory.WarehouseTests.test_stock_report_lists_available",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_inventory.py\", line 397, in test_stock_report_lists_available\n    self.assertEqual(self.wh.stock_report(), {\"EL-1001\": 1, \"GR-2001\": 3})\nAssertionError: None != {'EL-1001': 1, 'GR-2001': 3}\n"
+    },
+    {
+      "test": "tests.test_models.CustomerTests.test_can_afford_non_money_rejected",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_models.py\", line 464, in test_can_afford_non_money_rejected\n    with self.assertRaises(TypeError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: TypeError not raised\n"
+    },
+    {
+      "test": "tests.test_models.CustomerTests.test_can_afford_true_within_limit",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_models.py\", line 451, in test_can_afford_true_within_limit\n    self.assertTrue(c.can_afford(Money(1000)))\nAssertionError: None is not true\n"
+    },
+    {
+      "test": "tests.test_orders.OrderAddItemTests.test_add_after_advance_rejected",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 138, in test_add_after_advance_rejected\n    self.assertIs(ctx.exception.source, OrderStatus.RESERVED)\nAssertionError: None is not <OrderStatus.RESERVED: 'reserved'>\n"
+    },
+    {
+      "test": "tests.test_orders.OrderAdvanceTests.test_advance_from_terminal_raises",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 175, in test_advance_from_terminal_raises\n    with self.assertRaises(InvalidTransitionError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: InvalidTransitionError not raised\n"
+    },
+    {
+      "test": "tests.test_orders.OrderAdvanceTests.test_advance_to_same_status_raises",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 180, in test_advance_to_same_status_raises\n    with self.assertRaises(InvalidTransitionError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: InvalidTransitionError not raised\n"
+    },
+    {
+      "test": "tests.test_orders.OrderAdvanceTests.test_cancel_from_new",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 158, in test_cancel_from_new\n    self.assertIs(o.status, OrderStatus.CANCELLED)\nAssertionError: None is not <OrderStatus.CANCELLED: 'cancelled'>\n"
+    },
+    {
+      "test": "tests.test_orders.OrderAdvanceTests.test_cancel_from_reserved",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 164, in test_cancel_from_reserved\n    self.assertIs(o.status, OrderStatus.CANCELLED)\nAssertionError: None is not <OrderStatus.CANCELLED: 'cancelled'>\n"
+    },
+    {
+      "test": "tests.test_orders.OrderAdvanceTests.test_happy_path_to_shipped",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 151, in test_happy_path_to_shipped\n    self.assertIs(o.status, OrderStatus.RESERVED)\nAssertionError: None is not <OrderStatus.RESERVED: 'reserved'>\n"
+    },
+    {
+      "test": "tests.test_orders.OrderAdvanceTests.test_illegal_advance_raises_and_keeps_status",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 168, in test_illegal_advance_raises_and_keeps_status\n    with self.assertRaises(InvalidTransitionError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: InvalidTransitionError not raised\n"
+    },
+    {
+      "test": "tests.test_orders.OrderStateMachineTests.test_call_is_alias_for_transition",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 70, in test_call_is_alias_for_transition\n    self.assertIs(sm(OrderStatus.RESERVED, OrderStatus.SHIPPED), OrderStatus.SHIPPED)\nAssertionError: None is not <OrderStatus.SHIPPED: 'shipped'>\n"
+    },
+    {
+      "test": "tests.test_orders.OrderStateMachineTests.test_transition_illegal_raises",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 63, in test_transition_illegal_raises\n    with self.assertRaises(InvalidTransitionError) as ctx:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: InvalidTransitionError not raised\n"
+    },
+    {
+      "test": "tests.test_orders.OrderStateMachineTests.test_transition_returns_target_when_legal",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 60, in test_transition_returns_target_when_legal\n    self.assertIs(sm.transition(OrderStatus.NEW, OrderStatus.RESERVED), OrderStatus.RESERVED)\nAssertionError: None is not <OrderStatus.RESERVED: 'reserved'>\n"
+    },
+    {
+      "test": "tests.test_orders.OrderTotalTests.test_total_reflects_merged_quantities_for_bulk_discount",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 198, in test_total_reflects_merged_quantities_for_bulk_discount\n    self.assertEqual(o.total, Money(270))\nAssertionError: None != Money(270)\n"
+    },
+    {
+      "test": "tests.test_pricing.BulkDiscountPriceTests.test_at_threshold_applies_discount",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_pricing.py\", line 127, in test_at_threshold_applies_discount\n    self.assertEqual(d.price(items), Money(2700))\nAssertionError: None != Money(2700)\n"
+    },
+    {
+      "test": "tests.test_pricing.BulkDiscountPriceTests.test_below_threshold_returns_base_total",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_pricing.py\", line 122, in test_below_threshold_returns_base_total\n    self.assertEqual(d.price(items), Money(2000))\nAssertionError: None != Money(2000)\n"
+    },
+    {
+      "test": "tests.test_pricing.BulkDiscountPriceTests.test_discount_uses_floor_division",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_pricing.py\", line 144, in test_discount_uses_floor_division\n    self.assertEqual(d.price(items), Money(300))\nAssertionError: None != Money(300)\n"
+    },
+    {
+      "test": "tests.test_pricing.BulkDiscountPriceTests.test_empty_items_below_threshold",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_pricing.py\", line 159, in test_empty_items_below_threshold\n    self.assertEqual(d.price([]), Money(0))\nAssertionError: None != Money(0)\n"
+    },
+    {
+      "test": "tests.test_pricing.BulkDiscountPriceTests.test_full_discount_yields_zero",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_pricing.py\", line 149, in test_full_discount_yields_zero\n    self.assertEqual(d.price(items), Money(0))\nAssertionError: None != Money(0)\n"
+    },
+    {
+      "test": "tests.test_pricing.BulkDiscountPriceTests.test_quantity_summed_across_lines",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_pricing.py\", line 133, in test_quantity_summed_across_lines\n    self.assertEqual(d.price(items), Money(1080))\nAssertionError: None != Money(1080)\n"
+    },
+    {
+      "test": "tests.test_pricing.BulkDiscountPriceTests.test_wraps_base_with_tax",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_pricing.py\", line 155, in test_wraps_base_with_tax\n    self.assertEqual(d.price(items), Money(990))\nAssertionError: None != Money(990)\n"
+    },
+    {
+      "test": "tests.test_pricing.BulkDiscountPriceTests.test_zero_percent_returns_base_even_above_threshold",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_pricing.py\", line 138, in test_zero_percent_returns_base_even_above_threshold\n    self.assertEqual(d.price(items), Money(500))\nAssertionError: None != Money(500)\n"
+    },
+    {
+      "test": "tests.test_simulation.BuildDefaultWarehouseTests.test_returns_warehouse_with_three_skus_each_20",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_simulation.py\", line 291, in test_returns_warehouse_with_three_skus_each_20\n    self.assertEqual(\nAssertionError: None != {'EL-1001': 20, 'GR-2001': 20, 'HW-3001': 20}\n"
+    },
+    {
+      "test": "tests.test_simulation.SimulationStepTests.test_cancel_path_releases_reservation",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_simulation.py\", line 219, in test_cancel_path_releases_reservation\n    self.assertIsNotNone(cancelled_order)\nAssertionError: unexpectedly None\n"
+    },
+    {
+      "test": "tests.test_simulation.SimulationStepTests.test_shipped_path_publishes_and_adds_revenue",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_simulation.py\", line 199, in test_shipped_path_publishes_and_adds_revenue\n    self.fail(\"no shipped order produced\")\nAssertionError: no shipped order produced\n"
+    },
+    {
+      "test": "tests.test_simulation.SimulationStepTests.test_step_returns_order_and_accounts_for_it",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_simulation.py\", line 166, in test_step_returns_order_and_accounts_for_it\n    self.assertIn(order.status, (OrderStatus.SHIPPED, OrderStatus.CANCELLED))\nAssertionError: None not found in (<OrderStatus.SHIPPED: 'shipped'>, <OrderStatus.CANCELLED: 'cancelled'>)\n"
+    }
+  ],
+  "error_details": [
+    {
+      "test": "tests.test_models.CustomerTests.test_can_afford_accounts_for_existing_balance",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_models.py\", line 459, in test_can_afford_accounts_for_existing_balance\n    c.charge(Money(600))\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\playground\\models.py\", line 267, in charge\n    raise ValueError(\"credit limit exceeded\")\nValueError: credit limit exceeded\n"
+    },
+    {
+      "test": "tests.test_models.CustomerTests.test_charge_exactly_to_limit_allowed",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_models.py\", line 483, in test_charge_exactly_to_limit_allowed\n    c.charge(Money(100))\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\playground\\models.py\", line 267, in charge\n    raise ValueError(\"credit limit exceeded\")\nValueError: credit limit exceeded\n"
+    },
+    {
+      "test": "tests.test_models.CustomerTests.test_charge_increases_balance",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_models.py\", line 469, in test_charge_increases_balance\n    c.charge(Money(300))\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\playground\\models.py\", line 267, in charge\n    raise ValueError(\"credit limit exceeded\")\nValueError: credit limit exceeded\n"
+    },
+    {
+      "test": "tests.test_models.CustomerTests.test_charge_non_money_propagates_type_error",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_models.py\", line 488, in test_charge_non_money_propagates_type_error\n    Customer(\"C-1\", \"A\", Money(100)).charge(5)  # type: ignore[arg-type]\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\playground\\models.py\", line 267, in charge\n    raise ValueError(\"credit limit exceeded\")\nValueError: credit limit exceeded\n"
+    },
+    {
+      "test": "tests.test_models.MoneyMiscTests.test_bool_false_for_zero",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_models.py\", line 172, in test_bool_false_for_zero\n    self.assertFalse(bool(Money(0)))\n                     ^^^^^^^^^^^^^^\nTypeError: __bool__ should return bool, returned NoneType\n"
+    },
+    {
+      "test": "tests.test_models.MoneyMiscTests.test_bool_true_for_nonzero",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_models.py\", line 175, in test_bool_true_for_nonzero\n    self.assertTrue(bool(Money(1)))\n                    ^^^^^^^^^^^^^^\nTypeError: __bool__ should return bool, returned NoneType\n"
+    },
+    {
+      "test": "tests.test_orders.OrderAddItemTests.test_add_appends_new_sku",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 113, in test_add_appends_new_sku\n    self.assertEqual(len(self.order), 2)\n                     ^^^^^^^^^^^^^^^\nTypeError: 'NoneType' object cannot be interpreted as an integer\n"
+    },
+    {
+      "test": "tests.test_orders.OrderAddItemTests.test_add_same_sku_merges_quantity",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 119, in test_add_same_sku_merges_quantity\n    self.assertEqual(len(self.order), 1)\n                     ^^^^^^^^^^^^^^^\nTypeError: 'NoneType' object cannot be interpreted as an integer\n"
+    },
+    {
+      "test": "tests.test_orders.OrderBuilderTests.test_build_merges_duplicate_skus",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 306, in test_build_merges_duplicate_skus\n    self.assertEqual(len(order), 1)\n                     ^^^^^^^^^^\nTypeError: 'NoneType' object cannot be interpreted as an integer\n"
+    },
+    {
+      "test": "tests.test_orders.OrderBuilderTests.test_build_twice_creates_independent_orders",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 315, in test_build_twice_creates_independent_orders\n    self.assertEqual(len(o1), 1)\n                     ^^^^^^^\nTypeError: 'NoneType' object cannot be interpreted as an integer\n"
+    },
+    {
+      "test": "tests.test_orders.OrderConstructionTests.test_initial_state",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 82, in test_initial_state\n    self.assertEqual(len(o), 0)\n                     ^^^^^^\nTypeError: 'NoneType' object cannot be interpreted as an integer\n"
+    },
+    {
+      "test": "tests.test_orders.OrderContainerTests.test_len",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 215, in test_len\n    self.assertEqual(len(self.order), 2)\n                     ^^^^^^^^^^^^^^^\nTypeError: 'NoneType' object cannot be interpreted as an integer\n"
+    },
+    {
+      "test": "tests.test_orders.OrderEqualityTests.test_repr_includes_status",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 245, in test_repr_includes_status\n    self.assertEqual(repr(o), \"Order('ORD-7', cancelled)\")\n                     ^^^^^^^\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\playground\\orders.py\", line 122, in __repr__\n    return f\"Order({self._order_id!r}, {self._status.value})\"\n                                        ^^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'value'\n"
+    },
+    {
+      "test": "tests.test_orders.OrderLogTests.test_by_status_filters",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 396, in test_by_status_filters\n    self.assertEqual([o.order_id for o in self.log.by_status(OrderStatus.NEW)], [\"ORD-1\"])\n                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'NoneType' object is not iterable\n"
+    },
+    {
+      "test": "tests.test_orders.OrderLogTests.test_by_status_is_lazy_generator",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_orders.py\", line 404, in test_by_status_is_lazy_generator\n    self.assertEqual(list(gen), [])\n                     ^^^^^^^^^\nTypeError: 'NoneType' object is not iterable\n"
+    },
+    {
+      "test": "tests.test_simulation.SimulationStepTests.test_order_line_has_unit_price_1000_and_quantity_1_to_3",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_simulation.py\", line 183, in test_order_line_has_unit_price_1000_and_quantity_1_to_3\n    self.assertEqual(len(order), 1)\n                     ^^^^^^^^^^\nTypeError: 'NoneType' object cannot be interpreted as an integer\n"
+    },
+    {
+      "test": "tests.test_simulation.SimulationStepTests.test_same_seed_is_reproducible",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_simulation.py\", line 261, in test_same_seed_is_reproducible\n    self.assertEqual(run(42), run(42))\n                     ^^^^^^^\n  File \"C:\\Users\\Dima\\Desktop\\mAIN\\ZS\\SE4AI\\du6\\AI4SE_Labs_2026\\AI4SE_Playground\\playground\\tests\\test_simulation.py\", line 259, in run\n    return [sim.step().status.value for _ in range(15)]\n            ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'value'\n"
+    }
+  ],
+  "successful": false
+}

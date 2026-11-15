@@ -1,0 +1,31 @@
+{
+  "agent_unit_tests": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0,
+    "errors": 0,
+    "seconds": 10.716,
+    "api_calls": "mocked only; no live API calls",
+    "source_edits": "temporary fictional Example.answer fixtures only"
+  },
+  "real_preparation": {
+    "tasks": 10,
+    "retrieved_chunks_per_task": 5,
+    "api_calls": 0,
+    "generated_implementations": 0,
+    "modified_source_files": 0,
+    "original_files_backed_up": 6,
+    "missing_credential_exit_code": 2
+  },
+  "dependencies": {
+    "openai": "3.35.1",
+    "python-dotenv": "1.0.1",
+    "sentence-transformers": "6.3.0",
+    "transformers": "5.23.0",
+    "torch": "2.15.0",
+    "numpy": "2.3.4"
+  },
+  "pip_check": "No broken requirements found",
+  "credential_file_ignored": true,
+  "example_template_not_ignored": true
+}

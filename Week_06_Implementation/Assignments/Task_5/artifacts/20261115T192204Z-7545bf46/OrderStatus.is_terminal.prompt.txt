@@ -1,0 +1,440 @@
+Task: True when the status ends further transitions.
+Target file: playground/playground/enums.py
+Class: OrderStatus
+Method: is_terminal
+Original signature (retain exactly):
+    def is_terminal(self) -> bool:
+
+CURRENT TARGET FILE (authoritative; retrieved chunks may be stale):
+"""Enumerations used throughout the playground package."""
+
+from __future__ import annotations
+
+from enum import Enum
+
+
+class Category(Enum):
+    """Product categories within the warehouse catalogue."""
+
+    ELECTRONICS = "electronics"
+    GROCERY = "grocery"
+    APPAREL = "apparel"
+    HARDWARE = "hardware"
+
+    @classmethod
+    def from_label(cls, label: str) -> "Category":
+        """Resolve a category from its lowercase label string.
+
+        Raises:
+            TypeError: if ``label`` is not a string.
+            ValueError: if no member has a matching value.
+        """
+        if not isinstance(label, str):
+            raise TypeError("category label must be str")
+        key = label.strip().lower()
+        for member in cls:
+            if member.value == key:
+                return member
+        raise ValueError(f"unknown category: {label!r}")
+
+    def __str__(self) -> str:
+        """Return the category's value as its string form."""
+        return self.value
+
+
+class OrderStatus(Enum):
+    """Lifecycle stages for an order."""
+
+    NEW = "new"
+    RESERVED = "reserved"
+    SHIPPED = "shipped"
+    CANCELLED = "cancelled"
+
+    @property
+    def is_terminal(self) -> bool:
+        pass
+
+
+class EventType(Enum):
+    """Event bus topics published by simulation activity."""
+
+    STOCK_ADDED = 1
+    STOCK_RESERVED = 2
+    STOCK_RELEASED = 3
+    ORDER_SHIPPED = 4
+    ORDER_CANCELLED = 5
+
+
+TOP 5 RETRIEVED CHUNKS:
+CHUNK 206189a801e78f3ce527bac58ef80404f63b2f303ae432663d087c6e1c29ca88 | playground/playground/orders.py:1-42 | cosine=0.582768
+"""Order state-machine, order aggregates, builder, and log."""
+
+from __future__ import annotations
+
+from typing import Dict, FrozenSet, Iterator, List, Tuple
+
+from .base import PricingStrategy
+from .enums import OrderStatus
+from .exceptions import DuplicateEntityError, InvalidTransitionError
+from .models import Customer, LineItem, Money
+from .pricing import FlatPricing
+
+
+class OrderStateMachine:
+    """Legal OrderStatus transitions, data-driven via TRANSITIONS."""
+
+    TRANSITIONS: Dict[OrderStatus, FrozenSet[OrderStatus]] = {
+        OrderStatus.NEW: frozenset({OrderStatus.RESERVED, OrderStatus.CANCELLED}),
+        OrderStatus.RESERVED: frozenset({OrderStatus.SHIPPED, OrderStatus.CANCELLED}),
+        OrderStatus.SHIPPED: frozenset(),
+        OrderStatus.CANCELLED: frozenset(),
+    }
+
+    @staticmethod
+    def allowed_from(status: OrderStatus) -> FrozenSet[OrderStatus]:
+        """Return the set of statuses reachable from ``status``."""
+        if not isinstance(status, OrderStatus):
+            raise TypeError("status must be OrderStatus")
+        return OrderStateMachine.TRANSITIONS[status]
+
+    def can_transition(self, source: OrderStatus, target: OrderStatus) -> bool:
+        """Return whether ``target`` is reachable from ``source``."""
+        return target in OrderStateMachine.allowed_from(source)
+
+    def transition(self, source: OrderStatus, target: OrderStatus) -> OrderStatus:
+        pass
+
+    def __call__(self, source: OrderStatus, target: OrderStatus) -> OrderStatus:
+        """Convenience alias for :meth:`transition`."""
+        return self.transition(source, target)
+
+
+
+
+CHUNK b2b61cc7bacf89d3fdf0e886e2b8acae0b16eade272f653db0d7d62ffb86e3bd | playground/playground/enums.py:1-57 | cosine=0.494839
+"""Enumerations used throughout the playground package."""
+
+from __future__ import annotations
+
+from enum import Enum
+
+
+class Category(Enum):
+    """Product categories within the warehouse catalogue."""
+
+    ELECTRONICS = "electronics"
+    GROCERY = "grocery"
+    APPAREL = "apparel"
+    HARDWARE = "hardware"
+
+    @classmethod
+    def from_label(cls, label: str) -> "Category":
+        """Resolve a category from its lowercase label string.
+
+        Raises:
+            TypeError: if ``label`` is not a string.
+            ValueError: if no member has a matching value.
+        """
+        if not isinstance(label, str):
+            raise TypeError("category label must be str")
+        key = label.strip().lower()
+        for member in cls:
+            if member.value == key:
+                return member
+        raise ValueError(f"unknown category: {label!r}")
+
+    def __str__(self) -> str:
+        """Return the category's value as its string form."""
+        return self.value
+
+
+class OrderStatus(Enum):
+    """Lifecycle stages for an order."""
+
+    NEW = "new"
+    RESERVED = "reserved"
+    SHIPPED = "shipped"
+    CANCELLED = "cancelled"
+
+    @property
+    def is_terminal(self) -> bool:
+        pass
+
+
+class EventType(Enum):
+    """Event bus topics published by simulation activity."""
+
+    STOCK_ADDED = 1
+    STOCK_RESERVED = 2
+    STOCK_RELEASED = 3
+    ORDER_SHIPPED = 4
+    ORDER_CANCELLED = 5
+
+
+CHUNK 050d9fbf1e921ed3f030cbe7fdd7d02636338449ef4233ccf3e687e6a12de23e | playground/tests/test_orders.py:1-74 | cosine=0.490497
+"""Unit tests for the orders module."""
+from __future__ import annotations
+
+import unittest
+
+from playground.base import PricingStrategy
+from playground.enums import OrderStatus
+from playground.exceptions import DuplicateEntityError, InvalidTransitionError
+from playground.models import Customer, LineItem, Money
+from playground.orders import Order, OrderBuilder, OrderLog, OrderStateMachine
+from playground.pricing import BulkDiscountPricing, FlatPricing
+
+
+def _customer() -> Customer:
+    return Customer("C-1", "Alice", Money(1000000))
+
+
+def _order(order_id: str = "ORD-1", pricing: PricingStrategy | None = None) -> Order:
+    return Order(order_id, _customer(), pricing or FlatPricing())
+
+
+class OrderStateMachineTests(unittest.TestCase):
+    def test_new_can_reach_reserved_and_cancelled(self) -> None:
+        sm = OrderStateMachine()
+        self.assertTrue(sm.can_transition(OrderStatus.NEW, OrderStatus.RESERVED))
+        self.assertTrue(sm.can_transition(OrderStatus.NEW, OrderStatus.CANCELLED))
+
+    def test_new_cannot_ship_directly(self) -> None:
+        self.assertFalse(OrderStateMachine().can_transition(OrderStatus.NEW, OrderStatus.SHIPPED))
+
+    def test_reserved_can_ship_or_cancel(self) -> None:
+        sm = OrderStateMachine()
+        self.assertTrue(sm.can_transition(OrderStatus.RESERVED, OrderStatus.SHIPPED))
+        self.assertTrue(sm.can_transition(OrderStatus.RESERVED, OrderStatus.CANCELLED))
+
+    def test_reserved_cannot_return_to_new(self) -> None:
+        self.assertFalse(OrderStateMachine().can_transition(OrderStatus.RESERVED, OrderStatus.NEW))
+
+    def test_terminal_states_have_no_outgoing(self) -> None:
+        sm = OrderStateMachine()
+        for source in (OrderStatus.SHIPPED, OrderStatus.CANCELLED):
+            for target in OrderStatus:
+                with self.subTest(source=source, target=target):
+                    self.assertFalse(sm.can_transition(source, target))
+
+    def test_allowed_from_returns_frozenset(self) -> None:
+        allowed = OrderStateMachine.allowed_from(OrderStatus.NEW)
+        self.assertIsInstance(allowed, frozenset)
+        self.assertEqual(allowed, frozenset({OrderStatus.RESERVED, OrderStatus.CANCELLED}))
+
+    def test_allowed_from_terminal_is_empty(self) -> None:
+        self.assertEqual(OrderStateMachine.allowed_from(OrderStatus.SHIPPED), frozenset())
+
+    def test_allowed_from_non_status_raises(self) -> None:
+        with self.assertRaises(TypeError):
+            OrderStateMachine.allowed_from("new")  # type: ignore[arg-type]
+
+    def test_transition_returns_target_when_legal(self) -> None:
+        sm = OrderStateMachine()
+        self.assertIs(sm.transition(OrderStatus.NEW, OrderStatus.RESERVED), OrderStatus.RESERVED)
+
+    def test_transition_illegal_raises(self) -> None:
+        with self.assertRaises(InvalidTransitionError) as ctx:
+            OrderStateMachine().transition(OrderStatus.NEW, OrderStatus.SHIPPED)
+        self.assertIs(ctx.exception.source, OrderStatus.NEW)
+        self.assertIs(ctx.exception.target, OrderStatus.SHIPPED)
+
+    def test_call_is_alias_for_transition(self) -> None:
+        sm = OrderStateMachine()
+        self.assertIs(sm(OrderStatus.RESERVED, OrderStatus.SHIPPED), OrderStatus.SHIPPED)
+        with self.assertRaises(InvalidTransitionError):
+            sm(OrderStatus.SHIPPED, OrderStatus.NEW)
+
+
+
+
+CHUNK c930273908e38b0bfaa7c8d012d3f5994841442a8c3c6fed659cff151ebfebd6 | playground/playground/orders.py:43-124 | cosine=0.427423
+class Order:
+    """Customer order with items, status, and pricing."""
+
+    def __init__(self, order_id: str, customer: Customer, pricing: PricingStrategy) -> None:
+        """Create a new order in the NEW status for ``customer``."""
+        if not isinstance(order_id, str) or order_id.strip() == "":
+            raise ValueError("order_id required")
+        if not isinstance(customer, Customer):
+            raise TypeError("customer must be Customer")
+        if not isinstance(pricing, PricingStrategy):
+            raise TypeError("pricing must be PricingStrategy")
+        self._order_id = order_id
+        self._customer = customer
+        self._pricing = pricing
+        self._items: List[LineItem] = []
+        self._status: OrderStatus = OrderStatus.NEW
+        self._machine = OrderStateMachine()
+
+    @property
+    def order_id(self) -> str:
+        """Return the order identity."""
+        return self._order_id
+
+    @property
+    def customer(self) -> Customer:
+        """Return the owning customer."""
+        return self._customer
+
+    @property
+    def status(self) -> OrderStatus:
+        """Return the current order status."""
+        return self._status
+
+    @property
+    def items(self) -> Tuple[LineItem, ...]:
+        """Return a tuple copy of the order's line items."""
+        return tuple(self._items)
+
+    @property
+    def total(self) -> Money:
+        """Return the total price of all line items under this order's pricing."""
+        return self._pricing.price(self._items)
+
+    def add_item(self, item: LineItem) -> None:
+        """Append ``item``, merging with an existing line for the same SKU."""
+        if not isinstance(item, LineItem):
+            raise TypeError("item must be LineItem")
+        if self._status is not OrderStatus.NEW:
+            raise InvalidTransitionError(self._status, OrderStatus.NEW)
+        for index, existing in enumerate(self._items):
+            if existing.sku == item.sku:
+                self._items[index] = existing.with_quantity(existing.quantity + item.quantity)
+                return
+        self._items.append(item)
+
+    def advance(self, target: OrderStatus) -> None:
+        """Transition the order to ``target`` status, raising if not allowed."""
+        new_status = self._machine.transition(self._status, target)
+        self._status = new_status
+
+    def __len__(self) -> int:
+        pass
+
+    def __iter__(self) -> Iterator[LineItem]:
+        """Iterate over a tuple snapshot of the order's line items."""
+        return iter(tuple(self._items))
+
+    def __eq__(self, other: object) -> bool:
+        """Compare orders by identity."""
+        if not isinstance(other, Order):
+            return NotImplemented
+        return self._order_id == other._order_id
+
+    def __hash__(self) -> int:
+        """Hash by type name and order id."""
+        return hash(("Order", self._order_id))
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"Order({self._order_id!r}, {self._status.value})"
+
+
+
+
+CHUNK 7eaa66950bace0a637563a6b90cb75170070ba5b5c3737c6a9757ba2218a4c43 | playground/tests/test_orders.py:333-413 | cosine=0.366390
+class OrderLogTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.log = OrderLog()
+
+    def test_starts_empty(self) -> None:
+        self.assertEqual(len(self.log), 0)
+        self.assertEqual(list(self.log), [])
+
+    def test_record_appends_in_order(self) -> None:
+        a, b = _order("ORD-1"), _order("ORD-2")
+        self.log.record(a)
+        self.log.record(b)
+        self.assertEqual(len(self.log), 2)
+        self.assertIs(self.log[0], a)
+        self.assertIs(self.log[1], b)
+
+    def test_record_non_order_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            self.log.record("ORD-1")  # type: ignore[arg-type]
+
+    def test_record_duplicate_id_rejected(self) -> None:
+        self.log.record(_order("ORD-1"))
+        with self.assertRaises(DuplicateEntityError) as ctx:
+            self.log.record(_order("ORD-1"))
+        self.assertEqual(ctx.exception.key, "ORD-1")
+        self.assertEqual(len(self.log), 1)
+
+    def test_getitem_negative_index(self) -> None:
+        self.log.record(_order("ORD-1"))
+        self.log.record(_order("ORD-2"))
+        self.assertEqual(self.log[-1].order_id, "ORD-2")
+
+    def test_getitem_out_of_range_raises_index_error(self) -> None:
+        with self.assertRaises(IndexError):
+            self.log[0]
+
+    def test_iter_yields_in_insertion_order(self) -> None:
+        self.log.record(_order("ORD-2"))
+        self.log.record(_order("ORD-1"))
+        self.assertEqual([o.order_id for o in self.log], ["ORD-2", "ORD-1"])
+
+    def test_iter_is_generator_snapshot_taken_on_first_next(self) -> None:
+        # __iter__ is a generator (yield from list(...)), so the copy happens on first next().
+        self.log.record(_order("ORD-1"))
+        it = iter(self.log)
+        self.log.record(_order("ORD-2"))
+        self.assertEqual([o.order_id for o in it], ["ORD-1", "ORD-2"])
+
+    def test_iter_snapshot_isolated_after_first_next(self) -> None:
+        self.log.record(_order("ORD-1"))
+        self.log.record(_order("ORD-2"))
+        it = iter(self.log)
+        first = next(it)
+        self.log.record(_order("ORD-3"))
+        self.assertEqual(first.order_id, "ORD-1")
+        self.assertEqual([o.order_id for o in it], ["ORD-2"])
+
+    def test_by_status_filters(self) -> None:
+        a, b, c = _order("ORD-1"), _order("ORD-2"), _order("ORD-3")
+        for o in (a, b, c):
+            self.log.record(o)
+        b.advance(OrderStatus.CANCELLED)
+        c.advance(OrderStatus.RESERVED)
+        self.assertEqual([o.order_id for o in self.log.by_status(OrderStatus.NEW)], ["ORD-1"])
+        self.assertEqual([o.order_id for o in self.log.by_status(OrderStatus.CANCELLED)], ["ORD-2"])
+        self.assertEqual([o.order_id for o in self.log.by_status(OrderStatus.RESERVED)], ["ORD-3"])
+        self.assertEqual(list(self.log.by_status(OrderStatus.SHIPPED)), [])
+
+    def test_by_status_is_lazy_generator(self) -> None:
+        gen = self.log.by_status(OrderStatus.NEW)
+        self.assertFalse(hasattr(gen, "__len__"))
+        self.assertEqual(list(gen), [])
+
+    def test_by_status_non_status_raises_on_first_next(self) -> None:
+        gen = self.log.by_status("new")  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            next(gen)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+RELATED EXISTING TEST CLASSES (read-only context):
+class OrderStatusTests(unittest.TestCase):
+    def test_member_values(self) -> None:
+        self.assertEqual(OrderStatus.NEW.value, "new")
+        self.assertEqual(OrderStatus.RESERVED.value, "reserved")
+        self.assertEqual(OrderStatus.SHIPPED.value, "shipped")
+        self.assertEqual(OrderStatus.CANCELLED.value, "cancelled")
+
+    def test_shipped_is_terminal(self) -> None:
+        self.assertIs(OrderStatus.SHIPPED.is_terminal, True)
+
+    def test_cancelled_is_terminal(self) -> None:
+        self.assertIs(OrderStatus.CANCELLED.is_terminal, True)
+
+    def test_new_is_not_terminal(self) -> None:
+        self.assertIs(OrderStatus.NEW.is_terminal, False)
+
+    def test_reserved_is_not_terminal(self) -> None:
+        self.assertIs(OrderStatus.RESERVED.is_terminal, False)
+
+Return the required JSON object for this target only.

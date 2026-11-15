@@ -1,0 +1,1 @@
+{"file":"playground/playground/orders.py","class":"Order","method":"__len__","implementation":"def __len__(self) -> int:\n        \"\"\"Return the number of line items on the order.\"\"\"\n        return len(self._items)"}

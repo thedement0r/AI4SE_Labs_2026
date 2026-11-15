@@ -1,0 +1,503 @@
+Task: Return the base price, less the discount if the quantity qualifies.
+Target file: playground/playground/pricing.py
+Class: BulkDiscountPricing
+Method: price
+Original signature (retain exactly):
+    def price(self, items: Sequence[LineItem]) -> Money:
+
+CURRENT TARGET FILE (authoritative; retrieved chunks may be stale):
+"""Pricing strategies for computing order totals."""
+
+from __future__ import annotations
+
+from typing import Sequence
+
+from .base import PricingStrategy
+from .models import LineItem, Money
+from .util import ensure_positive_int
+
+
+class FlatPricing(PricingStrategy):
+    """Sum of subtotals plus flat tax in basis points."""
+
+    def __init__(self, tax_bps: int = 0) -> None:
+        """Create a pricing strategy with a tax rate in ``tax_bps`` basis points."""
+        if isinstance(tax_bps, bool) or not isinstance(tax_bps, int):
+            raise TypeError("tax_bps must be int")
+        if tax_bps < 0 or tax_bps > 10000:
+            raise ValueError("tax_bps must be 0..10000")
+        self._tax_bps = tax_bps
+
+    @property
+    def tax_bps(self) -> int:
+        """Return the tax rate in basis points."""
+        return self._tax_bps
+
+    def price(self, items: Sequence[LineItem]) -> Money:
+        """Return the subtotal plus the configured flat tax."""
+        subtotal = self._sum_subtotals(items)
+        if self._tax_bps == 0:
+            return subtotal
+        tax = Money(subtotal.cents * self._tax_bps // 10000)
+        return subtotal + tax
+
+
+class BulkDiscountPricing(PricingStrategy):
+    """Wraps another strategy; applies a percent discount when total quantity meets a threshold."""
+
+    def __init__(self, base: PricingStrategy, threshold: int, percent_off: int) -> None:
+        """Create a strategy that discounts ``base`` totals above ``threshold`` quantity."""
+        if not isinstance(base, PricingStrategy):
+            raise TypeError("base must be PricingStrategy")
+        threshold = ensure_positive_int(threshold, "threshold")
+        if isinstance(percent_off, bool) or not isinstance(percent_off, int):
+            raise TypeError("percent_off must be int")
+        if percent_off < 0 or percent_off > 100:
+            raise ValueError("percent_off must be 0..100")
+        self._base = base
+        self._threshold = threshold
+        self._percent_off = percent_off
+
+    @property
+    def threshold(self) -> int:
+        """Return the qualifying total quantity."""
+        return self._threshold
+
+    @property
+    def percent_off(self) -> int:
+        """Return the discount percentage."""
+        return self._percent_off
+
+    def price(self, items: Sequence[LineItem]) -> Money:
+        pass
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"BulkDiscountPricing(threshold={self._threshold}, percent_off={self._percent_off})"
+
+
+TOP 5 RETRIEVED CHUNKS:
+CHUNK 843e09d1aa8676c999774153067441bebb3f4c099d86fab152138b07a4b5f35e | playground/playground/pricing.py:1-68 | cosine=0.731270
+"""Pricing strategies for computing order totals."""
+
+from __future__ import annotations
+
+from typing import Sequence
+
+from .base import PricingStrategy
+from .models import LineItem, Money
+from .util import ensure_positive_int
+
+
+class FlatPricing(PricingStrategy):
+    """Sum of subtotals plus flat tax in basis points."""
+
+    def __init__(self, tax_bps: int = 0) -> None:
+        """Create a pricing strategy with a tax rate in ``tax_bps`` basis points."""
+        if isinstance(tax_bps, bool) or not isinstance(tax_bps, int):
+            raise TypeError("tax_bps must be int")
+        if tax_bps < 0 or tax_bps > 10000:
+            raise ValueError("tax_bps must be 0..10000")
+        self._tax_bps = tax_bps
+
+    @property
+    def tax_bps(self) -> int:
+        """Return the tax rate in basis points."""
+        return self._tax_bps
+
+    def price(self, items: Sequence[LineItem]) -> Money:
+        """Return the subtotal plus the configured flat tax."""
+        subtotal = self._sum_subtotals(items)
+        if self._tax_bps == 0:
+            return subtotal
+        tax = Money(subtotal.cents * self._tax_bps // 10000)
+        return subtotal + tax
+
+
+class BulkDiscountPricing(PricingStrategy):
+    """Wraps another strategy; applies a percent discount when total quantity meets a threshold."""
+
+    def __init__(self, base: PricingStrategy, threshold: int, percent_off: int) -> None:
+        """Create a strategy that discounts ``base`` totals above ``threshold`` quantity."""
+        if not isinstance(base, PricingStrategy):
+            raise TypeError("base must be PricingStrategy")
+        threshold = ensure_positive_int(threshold, "threshold")
+        if isinstance(percent_off, bool) or not isinstance(percent_off, int):
+            raise TypeError("percent_off must be int")
+        if percent_off < 0 or percent_off > 100:
+            raise ValueError("percent_off must be 0..100")
+        self._base = base
+        self._threshold = threshold
+        self._percent_off = percent_off
+
+    @property
+    def threshold(self) -> int:
+        """Return the qualifying total quantity."""
+        return self._threshold
+
+    @property
+    def percent_off(self) -> int:
+        """Return the discount percentage."""
+        return self._percent_off
+
+    def price(self, items: Sequence[LineItem]) -> Money:
+        pass
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"BulkDiscountPricing(threshold={self._threshold}, percent_off={self._percent_off})"
+
+
+CHUNK 53598e965b65d16773412e011abacadb0d2b3052240fc71ee0be4c4a34d10019 | playground/tests/test_pricing.py:73-168 | cosine=0.642812
+class BulkDiscountConstructionTests(unittest.TestCase):
+    def test_stores_fields(self) -> None:
+        base = FlatPricing()
+        d = BulkDiscountPricing(base, 5, 10)
+        self.assertEqual(d.threshold, 5)
+        self.assertEqual(d.percent_off, 10)
+
+    def test_base_must_be_strategy(self) -> None:
+        with self.assertRaises(TypeError):
+            BulkDiscountPricing(object(), 5, 10)  # type: ignore[arg-type]
+
+    def test_threshold_validated(self) -> None:
+        with self.assertRaises(ValueError):
+            BulkDiscountPricing(FlatPricing(), 0, 10)
+        with self.assertRaises(TypeError):
+            BulkDiscountPricing(FlatPricing(), True, 10)  # type: ignore[arg-type]
+
+    def test_percent_off_bool_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            BulkDiscountPricing(FlatPricing(), 1, False)  # type: ignore[arg-type]
+
+    def test_percent_off_float_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            BulkDiscountPricing(FlatPricing(), 1, 5.0)  # type: ignore[arg-type]
+
+    def test_percent_off_negative_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            BulkDiscountPricing(FlatPricing(), 1, -1)
+
+    def test_percent_off_above_100_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            BulkDiscountPricing(FlatPricing(), 1, 101)
+
+    def test_percent_off_boundaries_accepted(self) -> None:
+        self.assertEqual(BulkDiscountPricing(FlatPricing(), 1, 0).percent_off, 0)
+        self.assertEqual(BulkDiscountPricing(FlatPricing(), 1, 100).percent_off, 100)
+
+    def test_repr(self) -> None:
+        d = BulkDiscountPricing(FlatPricing(), 5, 10)
+        self.assertEqual(repr(d), "BulkDiscountPricing(threshold=5, percent_off=10)")
+
+    def test_is_pricing_strategy(self) -> None:
+        self.assertIsInstance(BulkDiscountPricing(FlatPricing(), 1, 1), PricingStrategy)
+
+
+class BulkDiscountPriceTests(unittest.TestCase):
+    def test_below_threshold_returns_base_total(self) -> None:
+        items = [LineItem("EL-1001", 2, Money(1000))]
+        d = BulkDiscountPricing(FlatPricing(), 3, 50)
+        self.assertEqual(d.price(items), Money(2000))
+
+    def test_at_threshold_applies_discount(self) -> None:
+        items = [LineItem("EL-1001", 3, Money(1000))]
+        d = BulkDiscountPricing(FlatPricing(), 3, 10)
+        self.assertEqual(d.price(items), Money(2700))
+
+    def test_quantity_summed_across_lines(self) -> None:
+        items = [LineItem("EL-1001", 1, Money(1000)), LineItem("GR-2001", 2, Money(100))]
+        d = BulkDiscountPricing(FlatPricing(), 3, 10)
+        # base = 1000 + 200 = 1200; discount = 120 -> 1080
+        self.assertEqual(d.price(items), Money(1080))
+
+    def test_zero_percent_returns_base_even_above_threshold(self) -> None:
+        items = [LineItem("EL-1001", 5, Money(100))]
+        d = BulkDiscountPricing(FlatPricing(), 1, 0)
+        self.assertEqual(d.price(items), Money(500))
+
+    def test_discount_uses_floor_division(self) -> None:
+        # base 333; 333 * 10 // 100 = 33 -> 300
+        items = [LineItem("EL-1001", 1, Money(333))]
+        d = BulkDiscountPricing(FlatPricing(), 1, 10)
+        self.assertEqual(d.price(items), Money(300))
+
+    def test_full_discount_yields_zero(self) -> None:
+        items = [LineItem("EL-1001", 2, Money(500))]
+        d = BulkDiscountPricing(FlatPricing(), 1, 100)
+        self.assertEqual(d.price(items), Money(0))
+
+    def test_wraps_base_with_tax(self) -> None:
+        items = [LineItem("EL-1001", 1, Money(1000))]
+        d = BulkDiscountPricing(FlatPricing(1000), 1, 10)
+        # base with 10% tax = 1100; discount = 110 -> 990
+        self.assertEqual(d.price(items), Money(990))
+
+    def test_empty_items_below_threshold(self) -> None:
+        d = BulkDiscountPricing(FlatPricing(), 1, 50)
+        self.assertEqual(d.price([]), Money(0))
+
+    def test_call_matches_price(self) -> None:
+        items = [LineItem("EL-1001", 3, Money(100))]
+        d = BulkDiscountPricing(FlatPricing(), 1, 10)
+        self.assertEqual(d(items), d.price(items))
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+CHUNK 04be1a3163466c7cf77f8fd199be9a538c5539ae07ea45e90a35cf84a089a443 | playground/tests/test_pricing.py:1-72 | cosine=0.540784
+"""Unit tests for the pricing module."""
+from __future__ import annotations
+
+import unittest
+
+from playground.base import PricingStrategy
+from playground.models import LineItem, Money
+from playground.pricing import BulkDiscountPricing, FlatPricing
+
+
+class FlatPricingConstructionTests(unittest.TestCase):
+    def test_default_tax_is_zero(self) -> None:
+        self.assertEqual(FlatPricing().tax_bps, 0)
+
+    def test_stores_tax(self) -> None:
+        self.assertEqual(FlatPricing(800).tax_bps, 800)
+
+    def test_boundaries_accepted(self) -> None:
+        self.assertEqual(FlatPricing(0).tax_bps, 0)
+        self.assertEqual(FlatPricing(10000).tax_bps, 10000)
+
+    def test_bool_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            FlatPricing(True)  # type: ignore[arg-type]
+
+    def test_float_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            FlatPricing(5.0)  # type: ignore[arg-type]
+
+    def test_negative_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            FlatPricing(-1)
+
+    def test_above_max_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            FlatPricing(10001)
+
+    def test_is_pricing_strategy(self) -> None:
+        self.assertIsInstance(FlatPricing(), PricingStrategy)
+
+
+class FlatPricingPriceTests(unittest.TestCase):
+    def test_empty_items_zero_tax_is_zero(self) -> None:
+        self.assertEqual(FlatPricing().price([]), Money(0))
+
+    def test_empty_items_with_tax_is_zero(self) -> None:
+        self.assertEqual(FlatPricing(800).price([]), Money(0))
+
+    def test_zero_tax_returns_subtotal(self) -> None:
+        items = [LineItem("EL-1001", 2, Money(250)), LineItem("GR-2001", 1, Money(300))]
+        self.assertEqual(FlatPricing().price(items), Money(800))
+
+    def test_tax_applied_with_floor_division(self) -> None:
+        # 1000 cents * 800 bps / 10000 = 80 cents tax
+        items = [LineItem("EL-1001", 1, Money(1000))]
+        self.assertEqual(FlatPricing(800).price(items), Money(1080))
+
+    def test_tax_rounds_down(self) -> None:
+        # 333 * 100 // 10000 = 3 (floor of 3.33)
+        items = [LineItem("EL-1001", 1, Money(333))]
+        self.assertEqual(FlatPricing(100).price(items), Money(336))
+
+    def test_full_tax_doubles_amount(self) -> None:
+        items = [LineItem("EL-1001", 1, Money(500))]
+        self.assertEqual(FlatPricing(10000).price(items), Money(1000))
+
+    def test_call_matches_price(self) -> None:
+        items = [LineItem("EL-1001", 1, Money(500))]
+        strategy = FlatPricing(800)
+        self.assertEqual(strategy(items), strategy.price(items))
+
+
+
+
+CHUNK 4fed19443756253d88c687bf9a2bf2041bf45ce906b5c532c4b66c42ecefefbe | playground/playground/base.py:1-85 | cosine=0.451738
+"""Abstract base classes for entities, pricing, and repositories."""
+
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Iterator, Sequence
+
+if TYPE_CHECKING:
+    from .models import LineItem, Money
+
+
+class Entity(ABC):
+    """Anything with a stable identity; equality and hashing derive from it."""
+
+    @abstractmethod
+    def identity(self) -> str:
+        """Return the unique key for this entity."""
+
+    def __eq__(self, other: object) -> bool:
+        """Compare identity for entities of the same concrete type."""
+        if type(self) is not type(other):
+            return NotImplemented
+        return self.identity() == other.identity()
+
+    def __hash__(self) -> int:
+        """Hash by the concrete type name and identity."""
+        return hash((type(self).__name__, self.identity()))
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation including the identity."""
+        return f"{type(self).__name__}({self.identity()!r})"
+
+
+class PricingStrategy(ABC):
+    """Computes an order total from line items."""
+
+    @abstractmethod
+    def price(self, items: Sequence["LineItem"]) -> "Money":
+        """Return the total for the given items."""
+
+    def __call__(self, items: Sequence["LineItem"]) -> "Money":
+        """Convenience alias for :meth:`price`."""
+        return self.price(items)
+
+    @staticmethod
+    def _sum_subtotals(items: Sequence["LineItem"]) -> "Money":
+        """Sum the subtotal of each item, returning a zero Money for empty input."""
+        from .models import Money
+
+        if len(items) == 0:
+            return Money(0)
+        total = Money(0)
+        for item in items:
+            total = total + item.subtotal
+        return total
+
+
+class Repository(ABC):
+    """Keyed storage of entities."""
+
+    @abstractmethod
+    def add(self, item: Entity) -> None:
+        """Store an entity keyed by its identity."""
+
+    @abstractmethod
+    def get(self, key: str) -> Entity:
+        """Return the entity for key; raise KeyError if missing."""
+
+    @abstractmethod
+    def remove(self, key: str) -> Entity:
+        """Remove and return the entity for key; raise KeyError if missing."""
+
+    @abstractmethod
+    def __iter__(self) -> Iterator[Entity]:
+        """Iterate over stored entities."""
+
+    def __contains__(self, key: object) -> bool:
+        """Return whether ``key`` is a string and its entity is present."""
+        if not isinstance(key, str):
+            return False
+        try:
+            self.get(key)
+        except KeyError:
+            return False
+        return True
+
+
+CHUNK a65064cfba69ef412425ff8107960ae8e985435dc82314a9a276eb0ffac85c87 | playground/playground/simulation.py:1-84 | cosine=0.448541
+"""Order simulation and report containers."""
+
+from __future__ import annotations
+
+import random
+from typing import Dict, List, Optional
+
+from .base import PricingStrategy
+from .enums import Category, EventType, OrderStatus
+from .events import EventBus
+from .exceptions import OutOfStockError
+from .inventory import InventoryLedger, Warehouse
+from .models import Customer, Money, Product
+from .orders import Order, OrderBuilder, OrderLog
+from .pricing import FlatPricing
+from .repository import InMemoryRepository
+from .util import ensure_positive_int, format_cents
+
+_REPORT_KINDS = ("created", "shipped", "cancelled", "rejected")
+
+
+class SimulationReport:
+    """Plain result container for a simulation run."""
+
+    def __init__(self) -> None:
+        """Initialise all counters and revenue to zero."""
+        self._counts: Dict[str, int] = {kind: 0 for kind in _REPORT_KINDS}
+        self._revenue: Money = Money(0)
+
+    @property
+    def orders_created(self) -> int:
+        """Return the number of orders created."""
+        return self._counts["created"]
+
+    @property
+    def orders_shipped(self) -> int:
+        """Return the number of orders shipped."""
+        return self._counts["shipped"]
+
+    @property
+    def orders_cancelled(self) -> int:
+        """Return the number of orders cancelled."""
+        return self._counts["cancelled"]
+
+    @property
+    def rejected_out_of_stock(self) -> int:
+        """Return the number of steps rejected for insufficient stock."""
+        return self._counts["rejected"]
+
+    @property
+    def revenue(self) -> Money:
+        """Return the total revenue earned by shipped orders."""
+        return self._revenue
+
+    def record(self, kind: str) -> None:
+        """Increment the counter for ``kind``; raises if the kind is unknown."""
+        if kind not in _REPORT_KINDS:
+            raise ValueError(f"unknown report kind: {kind!r}")
+        self._counts[kind] += 1
+
+    def add_revenue(self, amount: Money) -> None:
+        """Add ``amount`` to the total revenue."""
+        if not isinstance(amount, Money):
+            raise TypeError("amount must be Money")
+        self._revenue = self._revenue + amount
+
+    def summary(self) -> Dict[str, object]:
+        """Return a dictionary summary of counts and formatted revenue."""
+        return {
+            "orders_created": self.orders_created,
+            "orders_shipped": self.orders_shipped,
+            "orders_cancelled": self.orders_cancelled,
+            "rejected_out_of_stock": self.rejected_out_of_stock,
+            "revenue": format_cents(self._revenue.cents),
+        }
+
+    def __str__(self) -> str:
+        """Render the summary as one ``key: value`` line per entry."""
+        return "\n".join(f"{key}: {value}" for key, value in self.summary().items())
+
+
+class Simulation:
+    """Drives random order activity against a :class:`Warehouse`."""
+
+
+
+RELATED EXISTING TEST CLASSES (read-only context):
+
+
+Return the required JSON object for this target only.

@@ -1,0 +1,611 @@
+Task: Return a mapping of SKU to available quantity.
+Target file: playground/playground/inventory.py
+Class: Warehouse
+Method: stock_report
+Original signature (retain exactly):
+    def stock_report(self) -> Dict[str, int]:
+
+CURRENT TARGET FILE (authoritative; retrieved chunks may be stale):
+"""Inventory ledger and warehouse location."""
+
+from __future__ import annotations
+
+from typing import Dict, Iterator
+
+from .base import Entity, Repository
+from .exceptions import InvalidTransitionError, OutOfStockError, UnknownSKUError
+from .util import ensure_positive_int, normalize_sku
+
+
+class InventoryLedger:
+    """Tracks on-hand and reserved quantities per SKU."""
+
+    def __init__(self, product_repo: Repository) -> None:
+        """Create a ledger backed by ``product_repo`` for SKU validation."""
+        if not isinstance(product_repo, Repository):
+            raise TypeError("product_repo must be a Repository")
+        self._product_repo = product_repo
+        self._on_hand: Dict[str, int] = {}
+        self._reserved: Dict[str, int] = {}
+
+    def _require_sku(self, sku: str) -> str:
+        """Normalise ``sku`` and raise ``UnknownSKUError`` if it is unregistered."""
+        sku = normalize_sku(sku)
+        if sku not in self._product_repo:
+            raise UnknownSKUError(sku)
+        return sku
+
+    def add_stock(self, sku: str, quantity: int) -> int:
+        """Add ``quantity`` to on-hand stock for ``sku``; return the new total."""
+        quantity = ensure_positive_int(quantity, "quantity")
+        sku = self._require_sku(sku)
+        self._on_hand[sku] = self._on_hand.get(sku, 0) + quantity
+        return self._on_hand[sku]
+
+    def available(self, sku: str) -> int:
+        """Return on-hand minus reserved for ``sku``."""
+        sku = self._require_sku(sku)
+        return self._on_hand.get(sku, 0) - self._reserved.get(sku, 0)
+
+    def reserve(self, sku: str, quantity: int) -> ReservationContext:
+        """Reserve ``quantity`` of ``sku`` and return a context that can commit or release it."""
+        quantity = ensure_positive_int(quantity, "quantity")
+        sku = self._require_sku(sku)
+        avail = self.available(sku)
+        if quantity > avail:
+            raise OutOfStockError(sku, quantity, avail)
+        self._reserved[sku] = self._reserved.get(sku, 0) + quantity
+        return ReservationContext(self, sku, quantity)
+
+    def release(self, sku: str, quantity: int) -> None:
+        """Release ``quantity`` previously reserved for ``sku``."""
+        quantity = ensure_positive_int(quantity, "quantity")
+        sku = self._require_sku(sku)
+        reserved = self._reserved.get(sku, 0)
+        if quantity > reserved:
+            raise InvalidTransitionError(reserved, quantity)
+        self._reserved[sku] = reserved - quantity
+
+    def commit(self, sku: str, quantity: int) -> None:
+        """Commit ``quantity`` of ``sku``: decrement both reserved and on-hand."""
+        quantity = ensure_positive_int(quantity, "quantity")
+        sku = self._require_sku(sku)
+        reserved = self._reserved.get(sku, 0)
+        if quantity > reserved:
+            raise InvalidTransitionError(reserved, quantity)
+        self._reserved[sku] = reserved - quantity
+        self._on_hand[sku] = self._on_hand.get(sku, 0) - quantity
+
+    def __contains__(self, sku: object) -> bool:
+        pass
+
+    def __len__(self) -> int:
+        """Return the number of SKUs with positive on-hand stock."""
+        return sum(1 for qty in self._on_hand.values() if qty > 0)
+
+    def __iter__(self) -> Iterator[str]:
+        """Iterate over SKUs with positive on-hand stock, in sorted order."""
+        for sku in sorted(k for k, v in self._on_hand.items() if v > 0):
+            yield sku
+
+
+class ReservationContext:
+    """Context manager for a reservation; releases on exit unless committed."""
+
+    def __init__(self, ledger: InventoryLedger, sku: str, quantity: int) -> None:
+        """Create a held reservation for ``quantity`` of ``sku`` in ``ledger``."""
+        self._ledger = ledger
+        self._sku = sku
+        self._quantity = quantity
+        self._state = "held"
+
+    @property
+    def state(self) -> str:
+        """Return the current reservation state."""
+        return self._state
+
+    def __enter__(self) -> ReservationContext:
+        """Enter the context; raises if the reservation is not in the held state."""
+        if self._state != "held":
+            raise InvalidTransitionError(self._state, "held")
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> bool:
+        """Release the reservation on exit unless it was committed."""
+        if self._state == "held":
+            self._ledger.release(self._sku, self._quantity)
+            self._state = "released"
+        return False
+
+    def commit(self) -> None:
+        """Commit the reservation, decrementing stock; raises if not held."""
+        if self._state != "held":
+            raise InvalidTransitionError(self._state, "committed")
+        self._ledger.commit(self._sku, self._quantity)
+        self._state = "committed"
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"ReservationContext({self._sku!r}, {self._quantity}, {self._state!r})"
+
+
+class Warehouse(Entity):
+    """Named location owning an :class:`InventoryLedger`."""
+
+    def __init__(self, warehouse_id: str, name: str, ledger: InventoryLedger) -> None:
+        """Create a warehouse with the given id, name, and ledger."""
+        if not isinstance(warehouse_id, str) or warehouse_id.strip() == "":
+            raise ValueError("warehouse_id required")
+        if not isinstance(ledger, InventoryLedger):
+            raise TypeError("ledger must be InventoryLedger")
+        self._warehouse_id = warehouse_id
+        self._name = name
+        self._ledger = ledger
+
+    def identity(self) -> str:
+        """Return the warehouse_id as the entity identity."""
+        return self._warehouse_id
+
+    @property
+    def ledger(self) -> InventoryLedger:
+        """Return the warehouse inventory ledger."""
+        return self._ledger
+
+    def receive(self, sku: str, quantity: int) -> int:
+        """Add stock to the warehouse ledger; return the new on-hand total."""
+        return self._ledger.add_stock(sku, quantity)
+
+    def stock_report(self) -> Dict[str, int]:
+        pass
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"Warehouse({self._warehouse_id!r}, {self._name!r})"
+
+
+TOP 5 RETRIEVED CHUNKS:
+CHUNK a45c0cddbc85698600bba5e43e379f4cb1c6e60fbdce56e2401c5daee8b001e9 | playground/playground/inventory.py:1-83 | cosine=0.608112
+"""Inventory ledger and warehouse location."""
+
+from __future__ import annotations
+
+from typing import Dict, Iterator
+
+from .base import Entity, Repository
+from .exceptions import InvalidTransitionError, OutOfStockError, UnknownSKUError
+from .util import ensure_positive_int, normalize_sku
+
+
+class InventoryLedger:
+    """Tracks on-hand and reserved quantities per SKU."""
+
+    def __init__(self, product_repo: Repository) -> None:
+        """Create a ledger backed by ``product_repo`` for SKU validation."""
+        if not isinstance(product_repo, Repository):
+            raise TypeError("product_repo must be a Repository")
+        self._product_repo = product_repo
+        self._on_hand: Dict[str, int] = {}
+        self._reserved: Dict[str, int] = {}
+
+    def _require_sku(self, sku: str) -> str:
+        """Normalise ``sku`` and raise ``UnknownSKUError`` if it is unregistered."""
+        sku = normalize_sku(sku)
+        if sku not in self._product_repo:
+            raise UnknownSKUError(sku)
+        return sku
+
+    def add_stock(self, sku: str, quantity: int) -> int:
+        """Add ``quantity`` to on-hand stock for ``sku``; return the new total."""
+        quantity = ensure_positive_int(quantity, "quantity")
+        sku = self._require_sku(sku)
+        self._on_hand[sku] = self._on_hand.get(sku, 0) + quantity
+        return self._on_hand[sku]
+
+    def available(self, sku: str) -> int:
+        """Return on-hand minus reserved for ``sku``."""
+        sku = self._require_sku(sku)
+        return self._on_hand.get(sku, 0) - self._reserved.get(sku, 0)
+
+    def reserve(self, sku: str, quantity: int) -> ReservationContext:
+        """Reserve ``quantity`` of ``sku`` and return a context that can commit or release it."""
+        quantity = ensure_positive_int(quantity, "quantity")
+        sku = self._require_sku(sku)
+        avail = self.available(sku)
+        if quantity > avail:
+            raise OutOfStockError(sku, quantity, avail)
+        self._reserved[sku] = self._reserved.get(sku, 0) + quantity
+        return ReservationContext(self, sku, quantity)
+
+    def release(self, sku: str, quantity: int) -> None:
+        """Release ``quantity`` previously reserved for ``sku``."""
+        quantity = ensure_positive_int(quantity, "quantity")
+        sku = self._require_sku(sku)
+        reserved = self._reserved.get(sku, 0)
+        if quantity > reserved:
+            raise InvalidTransitionError(reserved, quantity)
+        self._reserved[sku] = reserved - quantity
+
+    def commit(self, sku: str, quantity: int) -> None:
+        """Commit ``quantity`` of ``sku``: decrement both reserved and on-hand."""
+        quantity = ensure_positive_int(quantity, "quantity")
+        sku = self._require_sku(sku)
+        reserved = self._reserved.get(sku, 0)
+        if quantity > reserved:
+            raise InvalidTransitionError(reserved, quantity)
+        self._reserved[sku] = reserved - quantity
+        self._on_hand[sku] = self._on_hand.get(sku, 0) - quantity
+
+    def __contains__(self, sku: object) -> bool:
+        pass
+
+    def __len__(self) -> int:
+        """Return the number of SKUs with positive on-hand stock."""
+        return sum(1 for qty in self._on_hand.values() if qty > 0)
+
+    def __iter__(self) -> Iterator[str]:
+        """Iterate over SKUs with positive on-hand stock, in sorted order."""
+        for sku in sorted(k for k, v in self._on_hand.items() if v > 0):
+            yield sku
+
+
+
+
+CHUNK a6ca338bdff07bbe56aed3217a531826077efa8b7e868dbd36694e1b5bedc149 | playground/playground/inventory.py:84-155 | cosine=0.604092
+class ReservationContext:
+    """Context manager for a reservation; releases on exit unless committed."""
+
+    def __init__(self, ledger: InventoryLedger, sku: str, quantity: int) -> None:
+        """Create a held reservation for ``quantity`` of ``sku`` in ``ledger``."""
+        self._ledger = ledger
+        self._sku = sku
+        self._quantity = quantity
+        self._state = "held"
+
+    @property
+    def state(self) -> str:
+        """Return the current reservation state."""
+        return self._state
+
+    def __enter__(self) -> ReservationContext:
+        """Enter the context; raises if the reservation is not in the held state."""
+        if self._state != "held":
+            raise InvalidTransitionError(self._state, "held")
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> bool:
+        """Release the reservation on exit unless it was committed."""
+        if self._state == "held":
+            self._ledger.release(self._sku, self._quantity)
+            self._state = "released"
+        return False
+
+    def commit(self) -> None:
+        """Commit the reservation, decrementing stock; raises if not held."""
+        if self._state != "held":
+            raise InvalidTransitionError(self._state, "committed")
+        self._ledger.commit(self._sku, self._quantity)
+        self._state = "committed"
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"ReservationContext({self._sku!r}, {self._quantity}, {self._state!r})"
+
+
+class Warehouse(Entity):
+    """Named location owning an :class:`InventoryLedger`."""
+
+    def __init__(self, warehouse_id: str, name: str, ledger: InventoryLedger) -> None:
+        """Create a warehouse with the given id, name, and ledger."""
+        if not isinstance(warehouse_id, str) or warehouse_id.strip() == "":
+            raise ValueError("warehouse_id required")
+        if not isinstance(ledger, InventoryLedger):
+            raise TypeError("ledger must be InventoryLedger")
+        self._warehouse_id = warehouse_id
+        self._name = name
+        self._ledger = ledger
+
+    def identity(self) -> str:
+        """Return the warehouse_id as the entity identity."""
+        return self._warehouse_id
+
+    @property
+    def ledger(self) -> InventoryLedger:
+        """Return the warehouse inventory ledger."""
+        return self._ledger
+
+    def receive(self, sku: str, quantity: int) -> int:
+        """Add stock to the warehouse ledger; return the new on-hand total."""
+        return self._ledger.add_stock(sku, quantity)
+
+    def stock_report(self) -> Dict[str, int]:
+        pass
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"Warehouse({self._warehouse_id!r}, {self._name!r})"
+
+
+CHUNK f8859ac23b1a8f550fa0fb29fe9e0d9c183e068f96d5a97c68b1c8181bd0586c | playground/playground/simulation.py:183-213 | cosine=0.585381
+    def run(self, steps: int) -> SimulationReport:
+        """Run ``steps`` steps and return the resulting report."""
+        steps = ensure_positive_int(steps, "steps")
+        for _ in range(steps):
+            self.step()
+        return self._report
+
+
+def build_default_warehouse() -> Warehouse:
+    """Create a warehouse stocked with three products (20 units each)."""
+    repo = InMemoryRepository(Product)
+    repo.add(Product("EL-1001", "Headphones", Category.ELECTRONICS, Money(2500)))
+    repo.add(Product("GR-2001", "Coffee Beans", Category.GROCERY, Money(300)))
+    repo.add(Product("HW-3001", "Hammer", Category.HARDWARE, Money(1200)))
+    ledger = InventoryLedger(repo)
+    warehouse = Warehouse("WH-1", "Main", ledger)
+    for sku in ("EL-1001", "GR-2001", "HW-3001"):
+        warehouse.receive(sku, 20)
+    return warehouse
+
+
+def run_simulation(seed: int, steps: int) -> SimulationReport:
+    """Build the default warehouse, then run a seeded simulation for ``steps``."""
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        raise TypeError("seed must be int")
+    steps = ensure_positive_int(steps, "steps")
+    warehouse = build_default_warehouse()
+    sim = Simulation(warehouse, FlatPricing(tax_bps=800), seed=seed)
+    sim.add_customer(Customer("C-1", "Customer One", Money(1000000)))
+    sim.add_customer(Customer("C-2", "Customer Two", Money(50000)))
+    return sim.run(steps)
+
+
+CHUNK ce30421fef843d3e176bd20187b5f7e022424a97b5e841ba5b357071db7dfe06 | playground/tests/test_inventory.py:1-92 | cosine=0.525933
+"""Unit tests for the inventory module."""
+from __future__ import annotations
+
+import unittest
+
+from playground.base import Repository
+from playground.enums import Category
+from playground.exceptions import (
+    InvalidTransitionError,
+    InventoryError,
+    OutOfStockError,
+    UnknownSKUError,
+)
+from playground.inventory import InventoryLedger, ReservationContext, Warehouse
+from playground.models import Money, Product
+from playground.repository import InMemoryRepository
+
+
+def _make_repo() -> InMemoryRepository:
+    repo = InMemoryRepository(Product)
+    repo.add(Product("EL-1001", "Headphones", Category.ELECTRONICS, Money(2500)))
+    repo.add(Product("GR-2001", "Beans", Category.GROCERY, Money(300)))
+    return repo
+
+
+class InventoryLedgerConstructionTests(unittest.TestCase):
+    def test_requires_repository(self) -> None:
+        with self.assertRaises(TypeError):
+            InventoryLedger({})  # type: ignore[arg-type]
+
+    def test_accepts_repository(self) -> None:
+        ledger = InventoryLedger(_make_repo())
+        self.assertEqual(len(ledger), 0)
+
+
+class InventoryLedgerStockTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.ledger = InventoryLedger(_make_repo())
+
+    def test_add_stock_returns_new_on_hand(self) -> None:
+        self.assertEqual(self.ledger.add_stock("EL-1001", 5), 5)
+        self.assertEqual(self.ledger.add_stock("EL-1001", 3), 8)
+
+    def test_add_stock_normalizes_sku(self) -> None:
+        self.assertEqual(self.ledger.add_stock(" el-1001 ", 2), 2)
+        self.assertEqual(self.ledger.available("EL-1001"), 2)
+
+    def test_add_stock_unknown_sku(self) -> None:
+        with self.assertRaises(UnknownSKUError) as ctx:
+            self.ledger.add_stock("ZZ-9999", 1)
+        self.assertEqual(ctx.exception.sku, "ZZ-9999")
+
+    def test_add_stock_invalid_sku_chars(self) -> None:
+        with self.assertRaises(ValueError):
+            self.ledger.add_stock("EL_1001", 1)
+
+    def test_add_stock_invalid_quantity_bool(self) -> None:
+        with self.assertRaises(TypeError):
+            self.ledger.add_stock("EL-1001", True)  # type: ignore[arg-type]
+
+    def test_add_stock_zero_quantity(self) -> None:
+        with self.assertRaises(ValueError):
+            self.ledger.add_stock("EL-1001", 0)
+
+    def test_quantity_validated_before_sku(self) -> None:
+        # Bad quantity on an unknown SKU must raise the quantity error first.
+        with self.assertRaises(ValueError):
+            self.ledger.add_stock("ZZ-9999", 0)
+
+    def test_available_defaults_to_zero_when_no_stock(self) -> None:
+        self.assertEqual(self.ledger.available("EL-1001"), 0)
+
+    def test_available_unknown_sku(self) -> None:
+        with self.assertRaises(UnknownSKUError):
+            self.ledger.available("ZZ-9999")
+
+    def test_available_normalizes(self) -> None:
+        self.ledger.add_stock("GR-2001", 4)
+        self.assertEqual(self.ledger.available("gr-2001"), 4)
+
+    def test_require_sku_returns_normalized(self) -> None:
+        self.assertEqual(self.ledger._require_sku(" gr-2001 "), "GR-2001")
+
+    def test_require_sku_unknown_raises(self) -> None:
+        with self.assertRaises(UnknownSKUError):
+            self.ledger._require_sku("GR-9999")
+
+    def test_require_sku_malformed_raises_value_error(self) -> None:
+        with self.assertRaises(ValueError):
+            self.ledger._require_sku("x")
+
+
+
+
+CHUNK 6daa2a67088821d9e521658f0f1c922efa6ac4e7564d14a633d7567faca53f4e | playground/playground/simulation.py:85-182 | cosine=0.520191
+    def __init__(
+        self,
+        warehouse: Warehouse,
+        pricing: PricingStrategy,
+        seed: int = 0,
+        bus: Optional[EventBus] = None,
+    ) -> None:
+        """Create a simulation bound to ``warehouse`` and ``pricing``."""
+        if not isinstance(warehouse, Warehouse):
+            raise TypeError("warehouse must be Warehouse")
+        if not isinstance(pricing, PricingStrategy):
+            raise TypeError("pricing must be PricingStrategy")
+        self._warehouse = warehouse
+        self._pricing = pricing
+        self._bus = EventBus() if bus is None else bus
+        self._rng = random.Random(seed)
+        self._log = OrderLog()
+        self._report = SimulationReport()
+        self._next_id = 1
+        self._customers: List[Customer] = []
+
+    @property
+    def log(self) -> OrderLog:
+        """Return the order log."""
+        return self._log
+
+    @property
+    def report(self) -> SimulationReport:
+        """Return the simulation report."""
+        return self._report
+
+    @property
+    def bus(self) -> EventBus:
+        """Return the event bus."""
+        return self._bus
+
+    def add_customer(self, customer: Customer) -> None:
+        """Register a customer for order generation."""
+        if not isinstance(customer, Customer):
+            raise TypeError("customer must be Customer")
+        self._customers.append(customer)
+
+    def step(self) -> Optional[Order]:
+        """Run one step of the simulation and return the created order, if any."""
+        if not self._customers:
+            return None
+        customer = self._rng.choice(self._customers)
+        skus = sorted(list(self._warehouse.ledger))
+        if not skus:
+            self._report.record("rejected")
+            return None
+        sku = self._rng.choice(skus)
+        quantity = self._rng.randint(1, 3)
+
+        order_id = f"ORD-{self._next_id:05d}"
+        self._next_id += 1
+        order = (
+            OrderBuilder(customer, self._pricing)
+            .add(sku, quantity, Money(1000))
+            .build(order_id)
+        )
+
+        try:
+            reservation = self._warehouse.ledger.reserve(sku, quantity)
+        except OutOfStockError:
+            self._report.record("rejected")
+            return None
+
+        order.advance(OrderStatus.RESERVED)
+        self._log.record(order)
+        self._report.record("created")
+        self._bus.publish(
+            EventType.STOCK_RESERVED,
+            {"order_id": order.order_id, "sku": sku, "quantity": quantity},
+        )
+
+        cancel = self._rng.random() < 0.2
+        with reservation:
+            if not cancel:
+                reservation.commit()
+
+        if cancel:
+            order.advance(OrderStatus.CANCELLED)
+            self._report.record("cancelled")
+            self._bus.publish(
+                EventType.ORDER_CANCELLED,
+                {"order_id": order.order_id, "sku": sku, "quantity": quantity},
+            )
+        else:
+            order.advance(OrderStatus.SHIPPED)
+            self._report.record("shipped")
+            self._report.add_revenue(order.total)
+            self._bus.publish(
+                EventType.ORDER_SHIPPED,
+                {"order_id": order.order_id, "sku": sku, "quantity": quantity},
+            )
+        return order
+
+
+
+RELATED EXISTING TEST CLASSES (read-only context):
+class WarehouseTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.ledger = InventoryLedger(_make_repo())
+        self.wh = Warehouse("WH-1", "Main", self.ledger)
+
+    def test_identity(self) -> None:
+        self.assertEqual(self.wh.identity(), "WH-1")
+
+    def test_ledger_property(self) -> None:
+        self.assertIs(self.wh.ledger, self.ledger)
+
+    def test_empty_id_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            Warehouse("  ", "Main", self.ledger)
+
+    def test_non_str_id_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            Warehouse(None, "Main", self.ledger)  # type: ignore[arg-type]
+
+    def test_non_ledger_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Warehouse("WH-1", "Main", object())  # type: ignore[arg-type]
+
+    def test_receive_delegates_and_returns_on_hand(self) -> None:
+        self.assertEqual(self.wh.receive("EL-1001", 4), 4)
+        self.assertEqual(self.wh.receive("EL-1001", 1), 5)
+        self.assertEqual(self.ledger.available("EL-1001"), 5)
+
+    def test_receive_unknown_sku_propagates(self) -> None:
+        with self.assertRaises(UnknownSKUError):
+            self.wh.receive("ZZ-9999", 1)
+
+    def test_receive_bad_quantity_propagates(self) -> None:
+        with self.assertRaises(ValueError):
+            self.wh.receive("EL-1001", 0)
+
+    def test_stock_report_lists_available(self) -> None:
+        self.wh.receive("GR-2001", 3)
+        self.wh.receive("EL-1001", 2)
+        self.ledger.reserve("EL-1001", 1)
+        self.assertEqual(self.wh.stock_report(), {"EL-1001": 1, "GR-2001": 3})
+
+    def test_stock_report_empty(self) -> None:
+        self.assertEqual(self.wh.stock_report(), {})
+
+    def test_repr(self) -> None:
+        self.assertEqual(repr(self.wh), "Warehouse('WH-1', 'Main')")
+
+    def test_equality_by_id(self) -> None:
+        other = Warehouse("WH-1", "Other", InventoryLedger(_make_repo()))
+        self.assertEqual(self.wh, other)
+
+Return the required JSON object for this target only.

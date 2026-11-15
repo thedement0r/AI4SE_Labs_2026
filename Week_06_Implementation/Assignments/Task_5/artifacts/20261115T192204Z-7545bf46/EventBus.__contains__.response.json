@@ -1,0 +1,1 @@
+{"file":"playground/playground/events.py","class":"EventBus","method":"__contains__","implementation":"def __contains__(self, event_type: object) -> bool:\n    \"\"\"Return whether any handlers are registered for ``event_type``.\"\"\"\n    if not isinstance(event_type, EventType):\n        return False\n    handlers = self._handlers.get(event_type)\n    return bool(handlers)"}

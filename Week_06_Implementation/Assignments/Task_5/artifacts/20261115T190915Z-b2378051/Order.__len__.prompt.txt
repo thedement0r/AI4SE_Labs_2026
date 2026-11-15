@@ -1,0 +1,998 @@
+Task: Return the number of line items.
+Target file: playground/playground/orders.py
+Class: Order
+Method: __len__
+Original signature (retain exactly):
+    def __len__(self) -> int:
+
+CURRENT TARGET FILE (authoritative; retrieved chunks may be stale):
+"""Order state-machine, order aggregates, builder, and log."""
+
+from __future__ import annotations
+
+from typing import Dict, FrozenSet, Iterator, List, Tuple
+
+from .base import PricingStrategy
+from .enums import OrderStatus
+from .exceptions import DuplicateEntityError, InvalidTransitionError
+from .models import Customer, LineItem, Money
+from .pricing import FlatPricing
+
+
+class OrderStateMachine:
+    """Legal OrderStatus transitions, data-driven via TRANSITIONS."""
+
+    TRANSITIONS: Dict[OrderStatus, FrozenSet[OrderStatus]] = {
+        OrderStatus.NEW: frozenset({OrderStatus.RESERVED, OrderStatus.CANCELLED}),
+        OrderStatus.RESERVED: frozenset({OrderStatus.SHIPPED, OrderStatus.CANCELLED}),
+        OrderStatus.SHIPPED: frozenset(),
+        OrderStatus.CANCELLED: frozenset(),
+    }
+
+    @staticmethod
+    def allowed_from(status: OrderStatus) -> FrozenSet[OrderStatus]:
+        """Return the set of statuses reachable from ``status``."""
+        if not isinstance(status, OrderStatus):
+            raise TypeError("status must be OrderStatus")
+        return OrderStateMachine.TRANSITIONS[status]
+
+    def can_transition(self, source: OrderStatus, target: OrderStatus) -> bool:
+        """Return whether ``target`` is reachable from ``source``."""
+        return target in OrderStateMachine.allowed_from(source)
+
+    def transition(self, source: OrderStatus, target: OrderStatus) -> OrderStatus:
+        pass
+
+    def __call__(self, source: OrderStatus, target: OrderStatus) -> OrderStatus:
+        """Convenience alias for :meth:`transition`."""
+        return self.transition(source, target)
+
+
+class Order:
+    """Customer order with items, status, and pricing."""
+
+    def __init__(self, order_id: str, customer: Customer, pricing: PricingStrategy) -> None:
+        """Create a new order in the NEW status for ``customer``."""
+        if not isinstance(order_id, str) or order_id.strip() == "":
+            raise ValueError("order_id required")
+        if not isinstance(customer, Customer):
+            raise TypeError("customer must be Customer")
+        if not isinstance(pricing, PricingStrategy):
+            raise TypeError("pricing must be PricingStrategy")
+        self._order_id = order_id
+        self._customer = customer
+        self._pricing = pricing
+        self._items: List[LineItem] = []
+        self._status: OrderStatus = OrderStatus.NEW
+        self._machine = OrderStateMachine()
+
+    @property
+    def order_id(self) -> str:
+        """Return the order identity."""
+        return self._order_id
+
+    @property
+    def customer(self) -> Customer:
+        """Return the owning customer."""
+        return self._customer
+
+    @property
+    def status(self) -> OrderStatus:
+        """Return the current order status."""
+        return self._status
+
+    @property
+    def items(self) -> Tuple[LineItem, ...]:
+        """Return a tuple copy of the order's line items."""
+        return tuple(self._items)
+
+    @property
+    def total(self) -> Money:
+        """Return the total price of all line items under this order's pricing."""
+        return self._pricing.price(self._items)
+
+    def add_item(self, item: LineItem) -> None:
+        """Append ``item``, merging with an existing line for the same SKU."""
+        if not isinstance(item, LineItem):
+            raise TypeError("item must be LineItem")
+        if self._status is not OrderStatus.NEW:
+            raise InvalidTransitionError(self._status, OrderStatus.NEW)
+        for index, existing in enumerate(self._items):
+            if existing.sku == item.sku:
+                self._items[index] = existing.with_quantity(existing.quantity + item.quantity)
+                return
+        self._items.append(item)
+
+    def advance(self, target: OrderStatus) -> None:
+        """Transition the order to ``target`` status, raising if not allowed."""
+        new_status = self._machine.transition(self._status, target)
+        self._status = new_status
+
+    def __len__(self) -> int:
+        pass
+
+    def __iter__(self) -> Iterator[LineItem]:
+        """Iterate over a tuple snapshot of the order's line items."""
+        return iter(tuple(self._items))
+
+    def __eq__(self, other: object) -> bool:
+        """Compare orders by identity."""
+        if not isinstance(other, Order):
+            return NotImplemented
+        return self._order_id == other._order_id
+
+    def __hash__(self) -> int:
+        """Hash by type name and order id."""
+        return hash(("Order", self._order_id))
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"Order({self._order_id!r}, {self._status.value})"
+
+
+class OrderBuilder:
+    """Fluent construction of an :class:`Order`."""
+
+    def __init__(self, customer: Customer, pricing: PricingStrategy) -> None:
+        """Create a builder for ``customer`` and ``pricing``."""
+        if not isinstance(customer, Customer):
+            raise TypeError("customer must be Customer")
+        if not isinstance(pricing, PricingStrategy):
+            raise TypeError("pricing must be PricingStrategy")
+        self._customer = customer
+        self._pricing = pricing
+        self._lines: List[Tuple[str, int, Money]] = []
+
+    @classmethod
+    def for_customer(cls, customer: Customer) -> OrderBuilder:
+        """Create a builder with default :class:`FlatPricing` for ``customer``."""
+        return cls(customer, FlatPricing())
+
+    def add(self, sku: str, quantity: int, unit_price: Money) -> OrderBuilder:
+        """Record a line item and return self for chaining."""
+        item = LineItem(sku, quantity, unit_price)
+        self._lines.append((item.sku, item.quantity, item.unit_price))
+        return self
+
+    def build(self, order_id: str) -> Order:
+        """Construct and return the order; raises if no lines were recorded."""
+        if len(self._lines) == 0:
+            raise ValueError("no items")
+        order = Order(order_id, self._customer, self._pricing)
+        for sku, quantity, unit_price in self._lines:
+            order.add_item(LineItem(sku, quantity, unit_price))
+        return order
+
+    def __len__(self) -> int:
+        """Return the number of recorded lines."""
+        return len(self._lines)
+
+    def __bool__(self) -> bool:
+        """Return True when at least one line has been recorded."""
+        return len(self) > 0
+
+
+class OrderLog:
+    """Ordered, deduplicated record of orders; iterable."""
+
+    def __init__(self) -> None:
+        """Create an empty order log."""
+        self._orders: List[Order] = []
+
+    def record(self, order: Order) -> None:
+        """Append ``order``; raises if an order with the same id is already logged."""
+        if not isinstance(order, Order):
+            raise TypeError("order must be Order")
+        for existing in self._orders:
+            if existing.order_id == order.order_id:
+                raise DuplicateEntityError(order.order_id)
+        self._orders.append(order)
+
+    def by_status(self, status: OrderStatus) -> Iterator[Order]:
+        pass
+
+    def __getitem__(self, index: int) -> Order:
+        """Return the order at ``index``."""
+        return self._orders[index]
+
+    def __len__(self) -> int:
+        """Return the number of logged orders."""
+        return len(self._orders)
+
+    def __iter__(self) -> Iterator[Order]:
+        """Iterate over the logged orders."""
+        yield from list(self._orders)
+
+
+TOP 5 RETRIEVED CHUNKS:
+CHUNK cc60ef29cd62bdf6121fef023b99724c246ff3b7f881f82a9bed57ebbf06013b | playground/playground/orders.py:125-196 | cosine=0.559014
+class OrderBuilder:
+    """Fluent construction of an :class:`Order`."""
+
+    def __init__(self, customer: Customer, pricing: PricingStrategy) -> None:
+        """Create a builder for ``customer`` and ``pricing``."""
+        if not isinstance(customer, Customer):
+            raise TypeError("customer must be Customer")
+        if not isinstance(pricing, PricingStrategy):
+            raise TypeError("pricing must be PricingStrategy")
+        self._customer = customer
+        self._pricing = pricing
+        self._lines: List[Tuple[str, int, Money]] = []
+
+    @classmethod
+    def for_customer(cls, customer: Customer) -> OrderBuilder:
+        """Create a builder with default :class:`FlatPricing` for ``customer``."""
+        return cls(customer, FlatPricing())
+
+    def add(self, sku: str, quantity: int, unit_price: Money) -> OrderBuilder:
+        """Record a line item and return self for chaining."""
+        item = LineItem(sku, quantity, unit_price)
+        self._lines.append((item.sku, item.quantity, item.unit_price))
+        return self
+
+    def build(self, order_id: str) -> Order:
+        """Construct and return the order; raises if no lines were recorded."""
+        if len(self._lines) == 0:
+            raise ValueError("no items")
+        order = Order(order_id, self._customer, self._pricing)
+        for sku, quantity, unit_price in self._lines:
+            order.add_item(LineItem(sku, quantity, unit_price))
+        return order
+
+    def __len__(self) -> int:
+        """Return the number of recorded lines."""
+        return len(self._lines)
+
+    def __bool__(self) -> bool:
+        """Return True when at least one line has been recorded."""
+        return len(self) > 0
+
+
+class OrderLog:
+    """Ordered, deduplicated record of orders; iterable."""
+
+    def __init__(self) -> None:
+        """Create an empty order log."""
+        self._orders: List[Order] = []
+
+    def record(self, order: Order) -> None:
+        """Append ``order``; raises if an order with the same id is already logged."""
+        if not isinstance(order, Order):
+            raise TypeError("order must be Order")
+        for existing in self._orders:
+            if existing.order_id == order.order_id:
+                raise DuplicateEntityError(order.order_id)
+        self._orders.append(order)
+
+    def by_status(self, status: OrderStatus) -> Iterator[Order]:
+        pass
+
+    def __getitem__(self, index: int) -> Order:
+        """Return the order at ``index``."""
+        return self._orders[index]
+
+    def __len__(self) -> int:
+        """Return the number of logged orders."""
+        return len(self._orders)
+
+    def __iter__(self) -> Iterator[Order]:
+        """Iterate over the logged orders."""
+        yield from list(self._orders)
+
+
+CHUNK c930273908e38b0bfaa7c8d012d3f5994841442a8c3c6fed659cff151ebfebd6 | playground/playground/orders.py:43-124 | cosine=0.558352
+class Order:
+    """Customer order with items, status, and pricing."""
+
+    def __init__(self, order_id: str, customer: Customer, pricing: PricingStrategy) -> None:
+        """Create a new order in the NEW status for ``customer``."""
+        if not isinstance(order_id, str) or order_id.strip() == "":
+            raise ValueError("order_id required")
+        if not isinstance(customer, Customer):
+            raise TypeError("customer must be Customer")
+        if not isinstance(pricing, PricingStrategy):
+            raise TypeError("pricing must be PricingStrategy")
+        self._order_id = order_id
+        self._customer = customer
+        self._pricing = pricing
+        self._items: List[LineItem] = []
+        self._status: OrderStatus = OrderStatus.NEW
+        self._machine = OrderStateMachine()
+
+    @property
+    def order_id(self) -> str:
+        """Return the order identity."""
+        return self._order_id
+
+    @property
+    def customer(self) -> Customer:
+        """Return the owning customer."""
+        return self._customer
+
+    @property
+    def status(self) -> OrderStatus:
+        """Return the current order status."""
+        return self._status
+
+    @property
+    def items(self) -> Tuple[LineItem, ...]:
+        """Return a tuple copy of the order's line items."""
+        return tuple(self._items)
+
+    @property
+    def total(self) -> Money:
+        """Return the total price of all line items under this order's pricing."""
+        return self._pricing.price(self._items)
+
+    def add_item(self, item: LineItem) -> None:
+        """Append ``item``, merging with an existing line for the same SKU."""
+        if not isinstance(item, LineItem):
+            raise TypeError("item must be LineItem")
+        if self._status is not OrderStatus.NEW:
+            raise InvalidTransitionError(self._status, OrderStatus.NEW)
+        for index, existing in enumerate(self._items):
+            if existing.sku == item.sku:
+                self._items[index] = existing.with_quantity(existing.quantity + item.quantity)
+                return
+        self._items.append(item)
+
+    def advance(self, target: OrderStatus) -> None:
+        """Transition the order to ``target`` status, raising if not allowed."""
+        new_status = self._machine.transition(self._status, target)
+        self._status = new_status
+
+    def __len__(self) -> int:
+        pass
+
+    def __iter__(self) -> Iterator[LineItem]:
+        """Iterate over a tuple snapshot of the order's line items."""
+        return iter(tuple(self._items))
+
+    def __eq__(self, other: object) -> bool:
+        """Compare orders by identity."""
+        if not isinstance(other, Order):
+            return NotImplemented
+        return self._order_id == other._order_id
+
+    def __hash__(self) -> int:
+        """Hash by type name and order id."""
+        return hash(("Order", self._order_id))
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"Order({self._order_id!r}, {self._status.value})"
+
+
+
+
+CHUNK d6dab307aaaba3aee4c8eefea40e64921ca0b30c4241719ee217c221edd3e42f | playground/tests/test_orders.py:147-245 | cosine=0.423184
+class OrderAdvanceTests(unittest.TestCase):
+    def test_happy_path_to_shipped(self) -> None:
+        o = _order()
+        o.advance(OrderStatus.RESERVED)
+        self.assertIs(o.status, OrderStatus.RESERVED)
+        o.advance(OrderStatus.SHIPPED)
+        self.assertIs(o.status, OrderStatus.SHIPPED)
+
+    def test_cancel_from_new(self) -> None:
+        o = _order()
+        o.advance(OrderStatus.CANCELLED)
+        self.assertIs(o.status, OrderStatus.CANCELLED)
+
+    def test_cancel_from_reserved(self) -> None:
+        o = _order()
+        o.advance(OrderStatus.RESERVED)
+        o.advance(OrderStatus.CANCELLED)
+        self.assertIs(o.status, OrderStatus.CANCELLED)
+
+    def test_illegal_advance_raises_and_keeps_status(self) -> None:
+        o = _order()
+        with self.assertRaises(InvalidTransitionError):
+            o.advance(OrderStatus.SHIPPED)
+        self.assertIs(o.status, OrderStatus.NEW)
+
+    def test_advance_from_terminal_raises(self) -> None:
+        o = _order()
+        o.advance(OrderStatus.CANCELLED)
+        with self.assertRaises(InvalidTransitionError):
+            o.advance(OrderStatus.RESERVED)
+
+    def test_advance_to_same_status_raises(self) -> None:
+        o = _order()
+        with self.assertRaises(InvalidTransitionError):
+            o.advance(OrderStatus.NEW)
+
+
+class OrderTotalTests(unittest.TestCase):
+    def test_total_empty_is_zero(self) -> None:
+        self.assertEqual(_order().total, Money(0))
+
+    def test_total_uses_pricing_strategy(self) -> None:
+        o = _order(pricing=FlatPricing(800))
+        o.add_item(LineItem("EL-1001", 1, Money(1000)))
+        self.assertEqual(o.total, Money(1080))
+
+    def test_total_reflects_merged_quantities_for_bulk_discount(self) -> None:
+        o = _order(pricing=BulkDiscountPricing(FlatPricing(), 3, 10))
+        o.add_item(LineItem("EL-1001", 1, Money(100)))
+        o.add_item(LineItem("EL-1001", 2, Money(100)))
+        # 3 units at 100 = 300, 10% off = 270
+        self.assertEqual(o.total, Money(270))
+
+
+class OrderContainerTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.order = _order()
+        self.order.add_item(LineItem("EL-1001", 1, Money(1)))
+        self.order.add_item(LineItem("GR-2001", 2, Money(1)))
+
+    def test_items_is_tuple_copy(self) -> None:
+        items = self.order.items
+        self.assertIsInstance(items, tuple)
+        self.order.add_item(LineItem("HW-3001", 1, Money(1)))
+        self.assertEqual(len(items), 2)
+        self.assertEqual(len(self.order.items), 3)
+
+    def test_len(self) -> None:
+        self.assertEqual(len(self.order), 2)
+
+    def test_iter_yields_line_items(self) -> None:
+        self.assertEqual([i.sku for i in self.order], ["EL-1001", "GR-2001"])
+
+    def test_iter_is_snapshot(self) -> None:
+        it = iter(self.order)
+        self.order.add_item(LineItem("HW-3001", 1, Money(1)))
+        self.assertEqual(len(list(it)), 2)
+
+
+class OrderEqualityTests(unittest.TestCase):
+    def test_equal_by_order_id(self) -> None:
+        self.assertEqual(_order("ORD-1"), _order("ORD-1"))
+
+    def test_not_equal_different_id(self) -> None:
+        self.assertNotEqual(_order("ORD-1"), _order("ORD-2"))
+
+    def test_eq_non_order_returns_not_implemented(self) -> None:
+        self.assertIs(_order().__eq__("ORD-1"), NotImplemented)
+        self.assertFalse(_order("ORD-1") == "ORD-1")
+
+    def test_hash_by_id(self) -> None:
+        self.assertEqual(hash(_order("ORD-1")), hash(("Order", "ORD-1")))
+        self.assertEqual(len({_order("ORD-1"), _order("ORD-1")}), 1)
+
+    def test_repr_includes_status(self) -> None:
+        o = _order("ORD-7")
+        self.assertEqual(repr(o), "Order('ORD-7', new)")
+        o.advance(OrderStatus.CANCELLED)
+        self.assertEqual(repr(o), "Order('ORD-7', cancelled)")
+
+
+CHUNK 8c1382503dd1cbe2d2dfb89759e3c5396255aa8f1e6fd8ef25dff0e2385626c1 | playground/playground/models.py:165-220 | cosine=0.420588
+class LineItem:
+    """One SKU with quantity and unit price."""
+
+    def __init__(self, sku: str, quantity: int, unit_price: Money) -> None:
+        """Create a line item after validating its SKU, quantity, and price."""
+        sku = normalize_sku(sku)
+        quantity = ensure_positive_int(quantity, "quantity")
+        if not isinstance(unit_price, Money):
+            raise TypeError("unit_price must be Money")
+        self._sku = sku
+        self._quantity = quantity
+        self._unit_price = unit_price
+
+    @property
+    def sku(self) -> str:
+        """Return the line item SKU."""
+        return self._sku
+
+    @property
+    def quantity(self) -> int:
+        """Return the line item quantity."""
+        return self._quantity
+
+    @property
+    def unit_price(self) -> Money:
+        """Return the unit price."""
+        return self._unit_price
+
+    @property
+    def subtotal(self) -> Money:
+        """Return the line item subtotal (unit price times quantity)."""
+        return self._unit_price * self._quantity
+
+    def with_quantity(self, quantity: int) -> LineItem:
+        """Return a copy of this line item with a new quantity."""
+        return LineItem(self._sku, quantity, self._unit_price)
+
+    def __eq__(self, other: object) -> bool:
+        """Compare SKU, quantity, and unit price for equality."""
+        if not isinstance(other, LineItem):
+            return NotImplemented
+        return (self._sku, self._quantity, self._unit_price) == (
+            other._sku,
+            other._quantity,
+            other._unit_price,
+        )
+
+    def __hash__(self) -> int:
+        """Hash by SKU and quantity."""
+        return hash((self._sku, self._quantity))
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"LineItem({self._sku!r}, {self._quantity}, {self._unit_price!r})"
+
+
+
+
+CHUNK a65064cfba69ef412425ff8107960ae8e985435dc82314a9a276eb0ffac85c87 | playground/playground/simulation.py:1-84 | cosine=0.406911
+"""Order simulation and report containers."""
+
+from __future__ import annotations
+
+import random
+from typing import Dict, List, Optional
+
+from .base import PricingStrategy
+from .enums import Category, EventType, OrderStatus
+from .events import EventBus
+from .exceptions import OutOfStockError
+from .inventory import InventoryLedger, Warehouse
+from .models import Customer, Money, Product
+from .orders import Order, OrderBuilder, OrderLog
+from .pricing import FlatPricing
+from .repository import InMemoryRepository
+from .util import ensure_positive_int, format_cents
+
+_REPORT_KINDS = ("created", "shipped", "cancelled", "rejected")
+
+
+class SimulationReport:
+    """Plain result container for a simulation run."""
+
+    def __init__(self) -> None:
+        """Initialise all counters and revenue to zero."""
+        self._counts: Dict[str, int] = {kind: 0 for kind in _REPORT_KINDS}
+        self._revenue: Money = Money(0)
+
+    @property
+    def orders_created(self) -> int:
+        """Return the number of orders created."""
+        return self._counts["created"]
+
+    @property
+    def orders_shipped(self) -> int:
+        """Return the number of orders shipped."""
+        return self._counts["shipped"]
+
+    @property
+    def orders_cancelled(self) -> int:
+        """Return the number of orders cancelled."""
+        return self._counts["cancelled"]
+
+    @property
+    def rejected_out_of_stock(self) -> int:
+        """Return the number of steps rejected for insufficient stock."""
+        return self._counts["rejected"]
+
+    @property
+    def revenue(self) -> Money:
+        """Return the total revenue earned by shipped orders."""
+        return self._revenue
+
+    def record(self, kind: str) -> None:
+        """Increment the counter for ``kind``; raises if the kind is unknown."""
+        if kind not in _REPORT_KINDS:
+            raise ValueError(f"unknown report kind: {kind!r}")
+        self._counts[kind] += 1
+
+    def add_revenue(self, amount: Money) -> None:
+        """Add ``amount`` to the total revenue."""
+        if not isinstance(amount, Money):
+            raise TypeError("amount must be Money")
+        self._revenue = self._revenue + amount
+
+    def summary(self) -> Dict[str, object]:
+        """Return a dictionary summary of counts and formatted revenue."""
+        return {
+            "orders_created": self.orders_created,
+            "orders_shipped": self.orders_shipped,
+            "orders_cancelled": self.orders_cancelled,
+            "rejected_out_of_stock": self.rejected_out_of_stock,
+            "revenue": format_cents(self._revenue.cents),
+        }
+
+    def __str__(self) -> str:
+        """Render the summary as one ``key: value`` line per entry."""
+        return "\n".join(f"{key}: {value}" for key, value in self.summary().items())
+
+
+class Simulation:
+    """Drives random order activity against a :class:`Warehouse`."""
+
+
+
+RELATED EXISTING TEST CLASSES (read-only context):
+class OrderStateMachineTests(unittest.TestCase):
+    def test_new_can_reach_reserved_and_cancelled(self) -> None:
+        sm = OrderStateMachine()
+        self.assertTrue(sm.can_transition(OrderStatus.NEW, OrderStatus.RESERVED))
+        self.assertTrue(sm.can_transition(OrderStatus.NEW, OrderStatus.CANCELLED))
+
+    def test_new_cannot_ship_directly(self) -> None:
+        self.assertFalse(OrderStateMachine().can_transition(OrderStatus.NEW, OrderStatus.SHIPPED))
+
+    def test_reserved_can_ship_or_cancel(self) -> None:
+        sm = OrderStateMachine()
+        self.assertTrue(sm.can_transition(OrderStatus.RESERVED, OrderStatus.SHIPPED))
+        self.assertTrue(sm.can_transition(OrderStatus.RESERVED, OrderStatus.CANCELLED))
+
+    def test_reserved_cannot_return_to_new(self) -> None:
+        self.assertFalse(OrderStateMachine().can_transition(OrderStatus.RESERVED, OrderStatus.NEW))
+
+    def test_terminal_states_have_no_outgoing(self) -> None:
+        sm = OrderStateMachine()
+        for source in (OrderStatus.SHIPPED, OrderStatus.CANCELLED):
+            for target in OrderStatus:
+                with self.subTest(source=source, target=target):
+                    self.assertFalse(sm.can_transition(source, target))
+
+    def test_allowed_from_returns_frozenset(self) -> None:
+        allowed = OrderStateMachine.allowed_from(OrderStatus.NEW)
+        self.assertIsInstance(allowed, frozenset)
+        self.assertEqual(allowed, frozenset({OrderStatus.RESERVED, OrderStatus.CANCELLED}))
+
+    def test_allowed_from_terminal_is_empty(self) -> None:
+        self.assertEqual(OrderStateMachine.allowed_from(OrderStatus.SHIPPED), frozenset())
+
+    def test_allowed_from_non_status_raises(self) -> None:
+        with self.assertRaises(TypeError):
+            OrderStateMachine.allowed_from("new")  # type: ignore[arg-type]
+
+    def test_transition_returns_target_when_legal(self) -> None:
+        sm = OrderStateMachine()
+        self.assertIs(sm.transition(OrderStatus.NEW, OrderStatus.RESERVED), OrderStatus.RESERVED)
+
+    def test_transition_illegal_raises(self) -> None:
+        with self.assertRaises(InvalidTransitionError) as ctx:
+            OrderStateMachine().transition(OrderStatus.NEW, OrderStatus.SHIPPED)
+        self.assertIs(ctx.exception.source, OrderStatus.NEW)
+        self.assertIs(ctx.exception.target, OrderStatus.SHIPPED)
+
+    def test_call_is_alias_for_transition(self) -> None:
+        sm = OrderStateMachine()
+        self.assertIs(sm(OrderStatus.RESERVED, OrderStatus.SHIPPED), OrderStatus.SHIPPED)
+        with self.assertRaises(InvalidTransitionError):
+            sm(OrderStatus.SHIPPED, OrderStatus.NEW)
+
+class OrderConstructionTests(unittest.TestCase):
+    def test_initial_state(self) -> None:
+        o = _order("ORD-9")
+        self.assertEqual(o.order_id, "ORD-9")
+        self.assertEqual(o.customer.customer_id, "C-1")
+        self.assertIs(o.status, OrderStatus.NEW)
+        self.assertEqual(o.items, ())
+        self.assertEqual(len(o), 0)
+
+    def test_empty_order_id_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            Order("  ", _customer(), FlatPricing())
+
+    def test_non_str_order_id_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            Order(None, _customer(), FlatPricing())  # type: ignore[arg-type]
+
+    def test_non_customer_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Order("ORD-1", "alice", FlatPricing())  # type: ignore[arg-type]
+
+    def test_non_pricing_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Order("ORD-1", _customer(), lambda items: Money(0))  # type: ignore[arg-type]
+
+    def test_customer_property(self) -> None:
+        c = _customer()
+        o = Order("ORD-1", c, FlatPricing())
+        self.assertIs(o.customer, c)
+
+class OrderAddItemTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.order = _order()
+
+    def test_add_appends_new_sku(self) -> None:
+        self.order.add_item(LineItem("EL-1001", 1, Money(250)))
+        self.order.add_item(LineItem("GR-2001", 2, Money(100)))
+        self.assertEqual(len(self.order), 2)
+        self.assertEqual([i.sku for i in self.order.items], ["EL-1001", "GR-2001"])
+
+    def test_add_same_sku_merges_quantity(self) -> None:
+        self.order.add_item(LineItem("EL-1001", 1, Money(250)))
+        self.order.add_item(LineItem("EL-1001", 2, Money(250)))
+        self.assertEqual(len(self.order), 1)
+        self.assertEqual(self.order.items[0].quantity, 3)
+
+    def test_merge_keeps_position(self) -> None:
+        self.order.add_item(LineItem("AA-1", 1, Money(1)))
+        self.order.add_item(LineItem("BB-1", 1, Money(1)))
+        self.order.add_item(LineItem("AA-1", 4, Money(1)))
+        self.assertEqual([i.sku for i in self.order.items], ["AA-1", "BB-1"])
+        self.assertEqual(self.order.items[0].quantity, 5)
+
+    def test_non_line_item_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            self.order.add_item(("EL-1001", 1, Money(1)))  # type: ignore[arg-type]
+
+    def test_add_after_advance_rejected(self) -> None:
+        self.order.add_item(LineItem("EL-1001", 1, Money(1)))
+        self.order.advance(OrderStatus.RESERVED)
+        with self.assertRaises(InvalidTransitionError) as ctx:
+            self.order.add_item(LineItem("GR-2001", 1, Money(1)))
+        self.assertIs(ctx.exception.source, OrderStatus.RESERVED)
+        self.assertIs(ctx.exception.target, OrderStatus.NEW)
+
+    def test_add_after_cancel_rejected(self) -> None:
+        self.order.advance(OrderStatus.CANCELLED)
+        with self.assertRaises(InvalidTransitionError):
+            self.order.add_item(LineItem("GR-2001", 1, Money(1)))
+
+class OrderAdvanceTests(unittest.TestCase):
+    def test_happy_path_to_shipped(self) -> None:
+        o = _order()
+        o.advance(OrderStatus.RESERVED)
+        self.assertIs(o.status, OrderStatus.RESERVED)
+        o.advance(OrderStatus.SHIPPED)
+        self.assertIs(o.status, OrderStatus.SHIPPED)
+
+    def test_cancel_from_new(self) -> None:
+        o = _order()
+        o.advance(OrderStatus.CANCELLED)
+        self.assertIs(o.status, OrderStatus.CANCELLED)
+
+    def test_cancel_from_reserved(self) -> None:
+        o = _order()
+        o.advance(OrderStatus.RESERVED)
+        o.advance(OrderStatus.CANCELLED)
+        self.assertIs(o.status, OrderStatus.CANCELLED)
+
+    def test_illegal_advance_raises_and_keeps_status(self) -> None:
+        o = _order()
+        with self.assertRaises(InvalidTransitionError):
+            o.advance(OrderStatus.SHIPPED)
+        self.assertIs(o.status, OrderStatus.NEW)
+
+    def test_advance_from_terminal_raises(self) -> None:
+        o = _order()
+        o.advance(OrderStatus.CANCELLED)
+        with self.assertRaises(InvalidTransitionError):
+            o.advance(OrderStatus.RESERVED)
+
+    def test_advance_to_same_status_raises(self) -> None:
+        o = _order()
+        with self.assertRaises(InvalidTransitionError):
+            o.advance(OrderStatus.NEW)
+
+class OrderTotalTests(unittest.TestCase):
+    def test_total_empty_is_zero(self) -> None:
+        self.assertEqual(_order().total, Money(0))
+
+    def test_total_uses_pricing_strategy(self) -> None:
+        o = _order(pricing=FlatPricing(800))
+        o.add_item(LineItem("EL-1001", 1, Money(1000)))
+        self.assertEqual(o.total, Money(1080))
+
+    def test_total_reflects_merged_quantities_for_bulk_discount(self) -> None:
+        o = _order(pricing=BulkDiscountPricing(FlatPricing(), 3, 10))
+        o.add_item(LineItem("EL-1001", 1, Money(100)))
+        o.add_item(LineItem("EL-1001", 2, Money(100)))
+        # 3 units at 100 = 300, 10% off = 270
+        self.assertEqual(o.total, Money(270))
+
+class OrderContainerTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.order = _order()
+        self.order.add_item(LineItem("EL-1001", 1, Money(1)))
+        self.order.add_item(LineItem("GR-2001", 2, Money(1)))
+
+    def test_items_is_tuple_copy(self) -> None:
+        items = self.order.items
+        self.assertIsInstance(items, tuple)
+        self.order.add_item(LineItem("HW-3001", 1, Money(1)))
+        self.assertEqual(len(items), 2)
+        self.assertEqual(len(self.order.items), 3)
+
+    def test_len(self) -> None:
+        self.assertEqual(len(self.order), 2)
+
+    def test_iter_yields_line_items(self) -> None:
+        self.assertEqual([i.sku for i in self.order], ["EL-1001", "GR-2001"])
+
+    def test_iter_is_snapshot(self) -> None:
+        it = iter(self.order)
+        self.order.add_item(LineItem("HW-3001", 1, Money(1)))
+        self.assertEqual(len(list(it)), 2)
+
+class OrderEqualityTests(unittest.TestCase):
+    def test_equal_by_order_id(self) -> None:
+        self.assertEqual(_order("ORD-1"), _order("ORD-1"))
+
+    def test_not_equal_different_id(self) -> None:
+        self.assertNotEqual(_order("ORD-1"), _order("ORD-2"))
+
+    def test_eq_non_order_returns_not_implemented(self) -> None:
+        self.assertIs(_order().__eq__("ORD-1"), NotImplemented)
+        self.assertFalse(_order("ORD-1") == "ORD-1")
+
+    def test_hash_by_id(self) -> None:
+        self.assertEqual(hash(_order("ORD-1")), hash(("Order", "ORD-1")))
+        self.assertEqual(len({_order("ORD-1"), _order("ORD-1")}), 1)
+
+    def test_repr_includes_status(self) -> None:
+        o = _order("ORD-7")
+        self.assertEqual(repr(o), "Order('ORD-7', new)")
+        o.advance(OrderStatus.CANCELLED)
+        self.assertEqual(repr(o), "Order('ORD-7', cancelled)")
+
+class OrderBuilderTests(unittest.TestCase):
+    def test_constructor_type_checks(self) -> None:
+        with self.assertRaises(TypeError):
+            OrderBuilder("alice", FlatPricing())  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            OrderBuilder(_customer(), object())  # type: ignore[arg-type]
+
+    def test_for_customer_uses_flat_pricing(self) -> None:
+        builder = OrderBuilder.for_customer(_customer())
+        builder.add("EL-1001", 1, Money(1000))
+        order = builder.build("ORD-1")
+        self.assertIsInstance(order._pricing, FlatPricing)
+        self.assertEqual(order.total, Money(1000))
+
+    def test_for_customer_is_classmethod_returning_subclass(self) -> None:
+        class _Sub(OrderBuilder):
+            pass
+
+        self.assertIsInstance(_Sub.for_customer(_customer()), _Sub)
+
+    def test_add_returns_self_for_chaining(self) -> None:
+        b = OrderBuilder(_customer(), FlatPricing())
+        self.assertIs(b.add("EL-1001", 1, Money(1)), b)
+
+    def test_add_validates_via_line_item(self) -> None:
+        b = OrderBuilder(_customer(), FlatPricing())
+        with self.assertRaises(ValueError):
+            b.add("x", 1, Money(1))
+        with self.assertRaises(ValueError):
+            b.add("EL-1001", 0, Money(1))
+        with self.assertRaises(TypeError):
+            b.add("EL-1001", 1, 5)  # type: ignore[arg-type]
+        self.assertEqual(len(b), 0)
+
+    def test_add_normalizes_sku(self) -> None:
+        b = OrderBuilder(_customer(), FlatPricing())
+        b.add(" el-1001 ", 1, Money(1))
+        order = b.build("ORD-1")
+        self.assertEqual(order.items[0].sku, "EL-1001")
+
+    def test_build_empty_raises(self) -> None:
+        with self.assertRaises(ValueError) as ctx:
+            OrderBuilder(_customer(), FlatPricing()).build("ORD-1")
+        self.assertEqual(str(ctx.exception), "no items")
+
+    def test_build_produces_order_with_lines(self) -> None:
+        b = OrderBuilder(_customer(), FlatPricing(0))
+        b.add("EL-1001", 2, Money(250)).add("GR-2001", 1, Money(300))
+        order = b.build("ORD-5")
+        self.assertIsInstance(order, Order)
+        self.assertEqual(order.order_id, "ORD-5")
+        self.assertIs(order.status, OrderStatus.NEW)
+        self.assertEqual(order.total, Money(800))
+
+    def test_build_merges_duplicate_skus(self) -> None:
+        b = OrderBuilder(_customer(), FlatPricing())
+        b.add("EL-1001", 1, Money(100)).add("EL-1001", 2, Money(100))
+        order = b.build("ORD-1")
+        self.assertEqual(len(order), 1)
+        self.assertEqual(order.items[0].quantity, 3)
+
+    def test_build_twice_creates_independent_orders(self) -> None:
+        b = OrderBuilder(_customer(), FlatPricing())
+        b.add("EL-1001", 1, Money(1))
+        o1 = b.build("ORD-1")
+        b.add("GR-2001", 1, Money(1))
+        o2 = b.build("ORD-2")
+        self.assertEqual(len(o1), 1)
+        self.assertEqual(len(o2), 2)
+
+    def test_build_propagates_bad_order_id(self) -> None:
+        b = OrderBuilder(_customer(), FlatPricing())
+        b.add("EL-1001", 1, Money(1))
+        with self.assertRaises(ValueError):
+            b.build("")
+
+    def test_len_and_bool(self) -> None:
+        b = OrderBuilder(_customer(), FlatPricing())
+        self.assertEqual(len(b), 0)
+        self.assertFalse(b)
+        b.add("EL-1001", 1, Money(1))
+        self.assertEqual(len(b), 1)
+        self.assertTrue(b)
+
+class OrderLogTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.log = OrderLog()
+
+    def test_starts_empty(self) -> None:
+        self.assertEqual(len(self.log), 0)
+        self.assertEqual(list(self.log), [])
+
+    def test_record_appends_in_order(self) -> None:
+        a, b = _order("ORD-1"), _order("ORD-2")
+        self.log.record(a)
+        self.log.record(b)
+        self.assertEqual(len(self.log), 2)
+        self.assertIs(self.log[0], a)
+        self.assertIs(self.log[1], b)
+
+    def test_record_non_order_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            self.log.record("ORD-1")  # type: ignore[arg-type]
+
+    def test_record_duplicate_id_rejected(self) -> None:
+        self.log.record(_order("ORD-1"))
+        with self.assertRaises(DuplicateEntityError) as ctx:
+            self.log.record(_order("ORD-1"))
+        self.assertEqual(ctx.exception.key, "ORD-1")
+        self.assertEqual(len(self.log), 1)
+
+    def test_getitem_negative_index(self) -> None:
+        self.log.record(_order("ORD-1"))
+        self.log.record(_order("ORD-2"))
+        self.assertEqual(self.log[-1].order_id, "ORD-2")
+
+    def test_getitem_out_of_range_raises_index_error(self) -> None:
+        with self.assertRaises(IndexError):
+            self.log[0]
+
+    def test_iter_yields_in_insertion_order(self) -> None:
+        self.log.record(_order("ORD-2"))
+        self.log.record(_order("ORD-1"))
+        self.assertEqual([o.order_id for o in self.log], ["ORD-2", "ORD-1"])
+
+    def test_iter_is_generator_snapshot_taken_on_first_next(self) -> None:
+        # __iter__ is a generator (yield from list(...)), so the copy happens on first next().
+        self.log.record(_order("ORD-1"))
+        it = iter(self.log)
+        self.log.record(_order("ORD-2"))
+        self.assertEqual([o.order_id for o in it], ["ORD-1", "ORD-2"])
+
+    def test_iter_snapshot_isolated_after_first_next(self) -> None:
+        self.log.record(_order("ORD-1"))
+        self.log.record(_order("ORD-2"))
+        it = iter(self.log)
+        first = next(it)
+        self.log.record(_order("ORD-3"))
+        self.assertEqual(first.order_id, "ORD-1")
+        self.assertEqual([o.order_id for o in it], ["ORD-2"])
+
+    def test_by_status_filters(self) -> None:
+        a, b, c = _order("ORD-1"), _order("ORD-2"), _order("ORD-3")
+        for o in (a, b, c):
+            self.log.record(o)
+        b.advance(OrderStatus.CANCELLED)
+        c.advance(OrderStatus.RESERVED)
+        self.assertEqual([o.order_id for o in self.log.by_status(OrderStatus.NEW)], ["ORD-1"])
+        self.assertEqual([o.order_id for o in self.log.by_status(OrderStatus.CANCELLED)], ["ORD-2"])
+        self.assertEqual([o.order_id for o in self.log.by_status(OrderStatus.RESERVED)], ["ORD-3"])
+        self.assertEqual(list(self.log.by_status(OrderStatus.SHIPPED)), [])
+
+    def test_by_status_is_lazy_generator(self) -> None:
+        gen = self.log.by_status(OrderStatus.NEW)
+        self.assertFalse(hasattr(gen, "__len__"))
+        self.assertEqual(list(gen), [])
+
+    def test_by_status_non_status_raises_on_first_next(self) -> None:
+        gen = self.log.by_status("new")  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            next(gen)
+
+Return the required JSON object for this target only.

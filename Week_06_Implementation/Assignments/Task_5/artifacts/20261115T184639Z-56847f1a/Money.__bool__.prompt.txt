@@ -1,0 +1,887 @@
+Task: Return True when the amount is non-zero.
+Target file: playground/playground/models.py
+Class: Money
+Method: __bool__
+Original signature (retain exactly):
+    def __bool__(self) -> bool:
+
+CURRENT TARGET FILE (authoritative; retrieved chunks may be stale):
+"""Core domain models: money, products, line items, and customers."""
+
+from __future__ import annotations
+
+from typing import Mapping
+
+from .base import Entity
+from .enums import Category
+from .util import ensure_positive_int, format_cents, normalize_sku
+
+
+class Money:
+    """Immutable integer-cents amount."""
+
+    def __init__(self, cents: int = 0) -> None:
+        """Create a monetary amount; cents must be a non-negative ``int``."""
+        if isinstance(cents, bool) or not isinstance(cents, int):
+            raise TypeError("cents must be int")
+        if cents < 0:
+            raise ValueError("money cannot be negative")
+        self._cents = cents
+
+    @property
+    def cents(self) -> int:
+        """Return the stored cents value."""
+        return self._cents
+
+    def __add__(self, other: Money) -> Money:
+        """Return a new Money equal to ``self + other``."""
+        if not isinstance(other, Money):
+            raise TypeError("can only add Money to Money")
+        return Money(self._cents + other._cents)
+
+    def __sub__(self, other: Money) -> Money:
+        """Return a new Money equal to ``self - other``.
+
+        Raises:
+            TypeError: if ``other`` is not :class:`Money`.
+            ValueError: if the result would be negative.
+        """
+        if not isinstance(other, Money):
+            raise TypeError("can only subtract Money from Money")
+        difference = self._cents - other._cents
+        if difference < 0:
+            raise ValueError("subtraction would be negative")
+        return Money(difference)
+
+    def __mul__(self, factor: int) -> Money:
+        """Return ``self`` multiplied by a non-negative integer."""
+        if isinstance(factor, bool) or not isinstance(factor, int):
+            raise TypeError("factor must be int")
+        if factor < 0:
+            raise ValueError("factor cannot be negative")
+        return Money(self._cents * factor)
+
+    def __rmul__(self, factor: int) -> Money:
+        """Support ``factor * Money`` by delegating to :meth:`__mul__`."""
+        return self.__mul__(factor)
+
+    def __eq__(self, other: object) -> bool:
+        """Return True if ``other`` is Money with equal cents."""
+        if not isinstance(other, Money):
+            return NotImplemented
+        return self._cents == other._cents
+
+    def __lt__(self, other: Money) -> bool:
+        """Return True if ``self`` is strictly less than ``other``."""
+        if not isinstance(other, Money):
+            return NotImplemented
+        return self._cents < other._cents
+
+    def __le__(self, other: Money) -> bool:
+        """Return True if ``self`` is less than or equal to ``other``."""
+        if not isinstance(other, Money):
+            return NotImplemented
+        return self._cents <= other._cents
+
+    def __hash__(self) -> int:
+        """Hash by the type name and cents value."""
+        return hash(("Money", self._cents))
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"Money({self._cents})"
+
+    def __str__(self) -> str:
+        """Render the amount as a ``$X.YY`` string."""
+        return format_cents(self._cents)
+
+    def __bool__(self) -> bool:
+        pass
+
+
+class Product(Entity):
+    """Catalog item."""
+
+    def __init__(self, sku: str, name: str, category: Category, unit_price: Money) -> None:
+        """Create a product after validating its SKU, name, category, and price."""
+        sku = normalize_sku(sku)
+        if not isinstance(name, str) or name.strip() == "":
+            raise ValueError("name required")
+        if not isinstance(category, Category):
+            raise TypeError("category must be Category")
+        if not isinstance(unit_price, Money):
+            raise TypeError("unit_price must be Money")
+        self._sku = sku
+        self._name = name
+        self._category = category
+        self._unit_price = unit_price
+
+    @property
+    def sku(self) -> str:
+        """Return the product SKU."""
+        return self._sku
+
+    @property
+    def name(self) -> str:
+        """Return the product name."""
+        return self._name
+
+    @property
+    def category(self) -> Category:
+        """Return the product category."""
+        return self._category
+
+    @property
+    def unit_price(self) -> Money:
+        """Return the product unit price."""
+        return self._unit_price
+
+    def identity(self) -> str:
+        """Return the SKU as the entity identity."""
+        return self._sku
+
+    def with_price(self, new_price: Money) -> Product:
+        """Return a copy of this product with an updated unit price."""
+        if not isinstance(new_price, Money):
+            raise TypeError("new_price must be Money")
+        return Product(self._sku, self._name, self._category, new_price)
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, object]) -> Product:
+        """Build a product from a mapping with keys sku, name, category, unit_price_cents."""
+        for key in ("sku", "name", "category", "unit_price_cents"):
+            if key not in data:
+                raise KeyError(key)
+        raw_category = data["category"]
+        if isinstance(raw_category, str):
+            category = Category.from_label(raw_category)
+        elif isinstance(raw_category, Category):
+            category = raw_category
+        else:
+            raise TypeError("category must be str or Category")
+        unit_price = Money(data["unit_price_cents"])
+        return cls(data["sku"], data["name"], category, unit_price)
+
+    @staticmethod
+    def is_valid_name(name: str) -> bool:
+        """Return True if ``name`` is a string of 1..80 non-blank characters."""
+        if not isinstance(name, str):
+            return False
+        return 1 <= len(name.strip()) <= 80
+
+
+class LineItem:
+    """One SKU with quantity and unit price."""
+
+    def __init__(self, sku: str, quantity: int, unit_price: Money) -> None:
+        """Create a line item after validating its SKU, quantity, and price."""
+        sku = normalize_sku(sku)
+        quantity = ensure_positive_int(quantity, "quantity")
+        if not isinstance(unit_price, Money):
+            raise TypeError("unit_price must be Money")
+        self._sku = sku
+        self._quantity = quantity
+        self._unit_price = unit_price
+
+    @property
+    def sku(self) -> str:
+        """Return the line item SKU."""
+        return self._sku
+
+    @property
+    def quantity(self) -> int:
+        """Return the line item quantity."""
+        return self._quantity
+
+    @property
+    def unit_price(self) -> Money:
+        """Return the unit price."""
+        return self._unit_price
+
+    @property
+    def subtotal(self) -> Money:
+        """Return the line item subtotal (unit price times quantity)."""
+        return self._unit_price * self._quantity
+
+    def with_quantity(self, quantity: int) -> LineItem:
+        """Return a copy of this line item with a new quantity."""
+        return LineItem(self._sku, quantity, self._unit_price)
+
+    def __eq__(self, other: object) -> bool:
+        """Compare SKU, quantity, and unit price for equality."""
+        if not isinstance(other, LineItem):
+            return NotImplemented
+        return (self._sku, self._quantity, self._unit_price) == (
+            other._sku,
+            other._quantity,
+            other._unit_price,
+        )
+
+    def __hash__(self) -> int:
+        """Hash by SKU and quantity."""
+        return hash((self._sku, self._quantity))
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"LineItem({self._sku!r}, {self._quantity}, {self._unit_price!r})"
+
+
+class Customer(Entity):
+    """Buyer with a credit limit. Balance is the amount owed."""
+
+    def __init__(self, customer_id: str, name: str, credit_limit: Money = Money(0)) -> None:
+        """Create a customer with the given identity, name, and credit limit."""
+        if not isinstance(customer_id, str) or customer_id.strip() == "":
+            raise ValueError("customer_id required")
+        if not isinstance(name, str) or name.strip() == "":
+            raise ValueError("name required")
+        if not isinstance(credit_limit, Money):
+            raise TypeError("credit_limit must be Money")
+        self._customer_id = customer_id
+        self._name = name
+        self._credit_limit = credit_limit
+        self._balance = Money(0)
+
+    @property
+    def customer_id(self) -> str:
+        """Return the customer identity."""
+        return self._customer_id
+
+    @property
+    def name(self) -> str:
+        """Return the customer name."""
+        return self._name
+
+    @property
+    def credit_limit(self) -> Money:
+        """Return the credit limit."""
+        return self._credit_limit
+
+    @property
+    def balance(self) -> Money:
+        """Return the current outstanding balance."""
+        return self._balance
+
+    def identity(self) -> str:
+        """Return the customer_id as the entity identity."""
+        return self._customer_id
+
+    def can_afford(self, total: Money) -> bool:
+        pass
+
+    def charge(self, total: Money) -> None:
+        """Increase the balance by ``total``, raising if the limit would be exceeded."""
+        if not self.can_afford(total):
+            raise ValueError("credit limit exceeded")
+        self._balance = self._balance + total
+
+
+TOP 5 RETRIEVED CHUNKS:
+CHUNK 009edb5f72ec280c9bd39950d7b8d8e95539b58a5b2cc799994dd278edb0c471 | playground/playground/models.py:1-93 | cosine=0.716541
+"""Core domain models: money, products, line items, and customers."""
+
+from __future__ import annotations
+
+from typing import Mapping
+
+from .base import Entity
+from .enums import Category
+from .util import ensure_positive_int, format_cents, normalize_sku
+
+
+class Money:
+    """Immutable integer-cents amount."""
+
+    def __init__(self, cents: int = 0) -> None:
+        """Create a monetary amount; cents must be a non-negative ``int``."""
+        if isinstance(cents, bool) or not isinstance(cents, int):
+            raise TypeError("cents must be int")
+        if cents < 0:
+            raise ValueError("money cannot be negative")
+        self._cents = cents
+
+    @property
+    def cents(self) -> int:
+        """Return the stored cents value."""
+        return self._cents
+
+    def __add__(self, other: Money) -> Money:
+        """Return a new Money equal to ``self + other``."""
+        if not isinstance(other, Money):
+            raise TypeError("can only add Money to Money")
+        return Money(self._cents + other._cents)
+
+    def __sub__(self, other: Money) -> Money:
+        """Return a new Money equal to ``self - other``.
+
+        Raises:
+            TypeError: if ``other`` is not :class:`Money`.
+            ValueError: if the result would be negative.
+        """
+        if not isinstance(other, Money):
+            raise TypeError("can only subtract Money from Money")
+        difference = self._cents - other._cents
+        if difference < 0:
+            raise ValueError("subtraction would be negative")
+        return Money(difference)
+
+    def __mul__(self, factor: int) -> Money:
+        """Return ``self`` multiplied by a non-negative integer."""
+        if isinstance(factor, bool) or not isinstance(factor, int):
+            raise TypeError("factor must be int")
+        if factor < 0:
+            raise ValueError("factor cannot be negative")
+        return Money(self._cents * factor)
+
+    def __rmul__(self, factor: int) -> Money:
+        """Support ``factor * Money`` by delegating to :meth:`__mul__`."""
+        return self.__mul__(factor)
+
+    def __eq__(self, other: object) -> bool:
+        """Return True if ``other`` is Money with equal cents."""
+        if not isinstance(other, Money):
+            return NotImplemented
+        return self._cents == other._cents
+
+    def __lt__(self, other: Money) -> bool:
+        """Return True if ``self`` is strictly less than ``other``."""
+        if not isinstance(other, Money):
+            return NotImplemented
+        return self._cents < other._cents
+
+    def __le__(self, other: Money) -> bool:
+        """Return True if ``self`` is less than or equal to ``other``."""
+        if not isinstance(other, Money):
+            return NotImplemented
+        return self._cents <= other._cents
+
+    def __hash__(self) -> int:
+        """Hash by the type name and cents value."""
+        return hash(("Money", self._cents))
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly representation."""
+        return f"Money({self._cents})"
+
+    def __str__(self) -> str:
+        """Render the amount as a ``$X.YY`` string."""
+        return format_cents(self._cents)
+
+    def __bool__(self) -> bool:
+        pass
+
+
+
+
+CHUNK 315233aad4cc1117b03d207eafe0dd21c90b88e19dc2a446a631cb43338ee3f8 | playground/tests/test_models.py:1-92 | cosine=0.633432
+"""Unit tests for the models module."""
+from __future__ import annotations
+
+import unittest
+
+from playground.base import Entity
+from playground.enums import Category
+from playground.models import Customer, LineItem, Money, Product
+
+
+class MoneyConstructionTests(unittest.TestCase):
+    def test_default_is_zero(self) -> None:
+        self.assertEqual(Money().cents, 0)
+
+    def test_stores_cents(self) -> None:
+        self.assertEqual(Money(1234).cents, 1234)
+
+    def test_bool_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(True)  # type: ignore[arg-type]
+
+    def test_float_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(1.5)  # type: ignore[arg-type]
+
+    def test_str_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money("100")  # type: ignore[arg-type]
+
+    def test_negative_rejected(self) -> None:
+        with self.assertRaises(ValueError) as ctx:
+            Money(-1)
+        self.assertEqual(str(ctx.exception), "money cannot be negative")
+
+    def test_cents_is_read_only(self) -> None:
+        m = Money(5)
+        with self.assertRaises(AttributeError):
+            m.cents = 10  # type: ignore[misc]
+
+
+class MoneyArithmeticTests(unittest.TestCase):
+    def test_add(self) -> None:
+        self.assertEqual(Money(100) + Money(250), Money(350))
+
+    def test_add_non_money_raises_type_error(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(1) + 1  # type: ignore[operator]
+
+    def test_sub(self) -> None:
+        self.assertEqual(Money(500) - Money(120), Money(380))
+
+    def test_sub_to_zero_allowed(self) -> None:
+        self.assertEqual(Money(5) - Money(5), Money(0))
+
+    def test_sub_non_money_raises_type_error(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(5) - 1  # type: ignore[operator]
+
+    def test_sub_negative_result_raises_value_error(self) -> None:
+        with self.assertRaises(ValueError) as ctx:
+            Money(1) - Money(2)
+        self.assertEqual(str(ctx.exception), "subtraction would be negative")
+
+    def test_mul_by_int(self) -> None:
+        self.assertEqual(Money(250) * 3, Money(750))
+
+    def test_mul_by_zero(self) -> None:
+        self.assertEqual(Money(250) * 0, Money(0))
+
+    def test_mul_bool_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(5) * True  # type: ignore[operator]
+
+    def test_mul_float_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(5) * 1.5  # type: ignore[operator]
+
+    def test_mul_negative_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            Money(5) * -1
+
+    def test_rmul_supports_int_on_left(self) -> None:
+        self.assertEqual(3 * Money(250), Money(750))
+
+    def test_rmul_delegates_to_mul(self) -> None:
+        self.assertEqual(Money(4).__rmul__(2), Money(4).__mul__(2))
+
+    def test_rmul_invalid_factor_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(4).__rmul__(True)  # type: ignore[arg-type]
+
+
+
+
+CHUNK fd5492aad112a5d2ba85297a516fbe30ea03cf3ffd3882a13674429a714bc32f | playground/tests/test_models.py:93-191 | cosine=0.607896
+class MoneyComparisonTests(unittest.TestCase):
+    def test_eq_same_cents(self) -> None:
+        self.assertTrue(Money(10) == Money(10))
+
+    def test_eq_different_cents(self) -> None:
+        self.assertFalse(Money(10) == Money(11))
+
+    def test_eq_non_money_is_false(self) -> None:
+        self.assertFalse(Money(10) == 10)
+        self.assertFalse(Money(0) == None)  # noqa: E711
+
+    def test_eq_non_money_returns_not_implemented(self) -> None:
+        self.assertIs(Money(1).__eq__(1), NotImplemented)
+
+    def test_ne(self) -> None:
+        self.assertTrue(Money(1) != Money(2))
+        self.assertFalse(Money(2) != Money(2))
+
+    def test_lt_true(self) -> None:
+        self.assertTrue(Money(1) < Money(2))
+
+    def test_lt_false_when_equal_or_greater(self) -> None:
+        self.assertFalse(Money(2) < Money(2))
+        self.assertFalse(Money(3) < Money(2))
+
+    def test_lt_non_money_raises_type_error_via_operator(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(1) < 2  # type: ignore[operator]
+
+    def test_lt_non_money_returns_not_implemented(self) -> None:
+        self.assertIs(Money(1).__lt__(2), NotImplemented)
+
+    def test_gt_works_via_reflected_lt(self) -> None:
+        # DESIGN.md defines only __lt__; '>' resolves through Python's reflection.
+        self.assertTrue(Money(5) > Money(2))
+        self.assertFalse(Money(2) > Money(2))
+
+    def test_le_less(self) -> None:
+        self.assertTrue(Money(1) <= Money(2))
+
+    def test_le_equal(self) -> None:
+        self.assertTrue(Money(2) <= Money(2))
+
+    def test_le_greater(self) -> None:
+        self.assertFalse(Money(3) <= Money(2))
+
+    def test_le_non_money_returns_not_implemented(self) -> None:
+        self.assertIs(Money(1).__le__(2), NotImplemented)
+
+    def test_le_non_money_raises_type_error_via_operator(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(1) <= 2  # type: ignore[operator]
+
+    def test_ge_works_via_reflected_le(self) -> None:
+        # With __le__ defined, '>=' resolves through Python's reflection.
+        self.assertTrue(Money(2) >= Money(2))
+        self.assertFalse(Money(1) >= Money(2))
+
+    def test_sorting(self) -> None:
+        values = [Money(30), Money(10), Money(20)]
+        self.assertEqual([m.cents for m in sorted(values)], [10, 20, 30])
+
+
+class MoneyMiscTests(unittest.TestCase):
+    def test_hash_matches_equal_values(self) -> None:
+        self.assertEqual(hash(Money(7)), hash(Money(7)))
+        self.assertEqual(hash(Money(7)), hash(("Money", 7)))
+
+    def test_usable_as_set_member(self) -> None:
+        self.assertEqual(len({Money(1), Money(1), Money(2)}), 2)
+
+    def test_repr(self) -> None:
+        self.assertEqual(repr(Money(1234)), "Money(1234)")
+
+    def test_str_formats_dollars(self) -> None:
+        self.assertEqual(str(Money(1234)), "$12.34")
+        self.assertEqual(str(Money(0)), "$0.00")
+
+    def test_bool_false_for_zero(self) -> None:
+        self.assertFalse(bool(Money(0)))
+
+    def test_bool_true_for_nonzero(self) -> None:
+        self.assertTrue(bool(Money(1)))
+
+
+class ProductTests(unittest.TestCase):
+    def _make(self, **overrides: object) -> Product:
+        args = {
+            "sku": "EL-1001",
+            "name": "Headphones",
+            "category": Category.ELECTRONICS,
+            "unit_price": Money(2500),
+        }
+        args.update(overrides)
+        return Product(**args)  # type: ignore[arg-type]
+
+    def test_is_entity(self) -> None:
+        self.assertIsInstance(self._make(), Entity)
+
+
+
+CHUNK 04be1a3163466c7cf77f8fd199be9a538c5539ae07ea45e90a35cf84a089a443 | playground/tests/test_pricing.py:1-72 | cosine=0.587727
+"""Unit tests for the pricing module."""
+from __future__ import annotations
+
+import unittest
+
+from playground.base import PricingStrategy
+from playground.models import LineItem, Money
+from playground.pricing import BulkDiscountPricing, FlatPricing
+
+
+class FlatPricingConstructionTests(unittest.TestCase):
+    def test_default_tax_is_zero(self) -> None:
+        self.assertEqual(FlatPricing().tax_bps, 0)
+
+    def test_stores_tax(self) -> None:
+        self.assertEqual(FlatPricing(800).tax_bps, 800)
+
+    def test_boundaries_accepted(self) -> None:
+        self.assertEqual(FlatPricing(0).tax_bps, 0)
+        self.assertEqual(FlatPricing(10000).tax_bps, 10000)
+
+    def test_bool_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            FlatPricing(True)  # type: ignore[arg-type]
+
+    def test_float_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            FlatPricing(5.0)  # type: ignore[arg-type]
+
+    def test_negative_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            FlatPricing(-1)
+
+    def test_above_max_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            FlatPricing(10001)
+
+    def test_is_pricing_strategy(self) -> None:
+        self.assertIsInstance(FlatPricing(), PricingStrategy)
+
+
+class FlatPricingPriceTests(unittest.TestCase):
+    def test_empty_items_zero_tax_is_zero(self) -> None:
+        self.assertEqual(FlatPricing().price([]), Money(0))
+
+    def test_empty_items_with_tax_is_zero(self) -> None:
+        self.assertEqual(FlatPricing(800).price([]), Money(0))
+
+    def test_zero_tax_returns_subtotal(self) -> None:
+        items = [LineItem("EL-1001", 2, Money(250)), LineItem("GR-2001", 1, Money(300))]
+        self.assertEqual(FlatPricing().price(items), Money(800))
+
+    def test_tax_applied_with_floor_division(self) -> None:
+        # 1000 cents * 800 bps / 10000 = 80 cents tax
+        items = [LineItem("EL-1001", 1, Money(1000))]
+        self.assertEqual(FlatPricing(800).price(items), Money(1080))
+
+    def test_tax_rounds_down(self) -> None:
+        # 333 * 100 // 10000 = 3 (floor of 3.33)
+        items = [LineItem("EL-1001", 1, Money(333))]
+        self.assertEqual(FlatPricing(100).price(items), Money(336))
+
+    def test_full_tax_doubles_amount(self) -> None:
+        items = [LineItem("EL-1001", 1, Money(500))]
+        self.assertEqual(FlatPricing(10000).price(items), Money(1000))
+
+    def test_call_matches_price(self) -> None:
+        items = [LineItem("EL-1001", 1, Money(500))]
+        strategy = FlatPricing(800)
+        self.assertEqual(strategy(items), strategy.price(items))
+
+
+
+
+CHUNK 75fea0cdf7f48827d48dd430f002abd816e881fd76624e1b365bed7fa6feca56 | playground/tests/test_models.py:331-402 | cosine=0.552729
+class LineItemTests(unittest.TestCase):
+    def test_stores_fields(self) -> None:
+        li = LineItem("el-1001", 2, Money(250))
+        self.assertEqual(li.sku, "EL-1001")
+        self.assertEqual(li.quantity, 2)
+        self.assertEqual(li.unit_price, Money(250))
+
+    def test_subtotal(self) -> None:
+        self.assertEqual(LineItem("EL-1001", 4, Money(250)).subtotal, Money(1000))
+
+    def test_invalid_sku_propagates(self) -> None:
+        with self.assertRaises(ValueError):
+            LineItem("a", 1, Money(1))
+
+    def test_bool_quantity_rejected(self) -> None:
+        with self.assertRaises(TypeError) as ctx:
+            LineItem("EL-1001", True, Money(1))  # type: ignore[arg-type]
+        self.assertEqual(str(ctx.exception), "quantity must be int")
+
+    def test_zero_quantity_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            LineItem("EL-1001", 0, Money(1))
+
+    def test_negative_quantity_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            LineItem("EL-1001", -1, Money(1))
+
+    def test_non_money_price_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            LineItem("EL-1001", 1, 100)  # type: ignore[arg-type]
+
+    def test_with_quantity_returns_new_item(self) -> None:
+        original = LineItem("EL-1001", 1, Money(250))
+        updated = original.with_quantity(5)
+        self.assertIsNot(updated, original)
+        self.assertEqual(updated.quantity, 5)
+        self.assertEqual(original.quantity, 1)
+        self.assertEqual(updated.unit_price, Money(250))
+
+    def test_with_quantity_validates(self) -> None:
+        with self.assertRaises(ValueError):
+            LineItem("EL-1001", 1, Money(1)).with_quantity(0)
+        with self.assertRaises(TypeError):
+            LineItem("EL-1001", 1, Money(1)).with_quantity(1.0)  # type: ignore[arg-type]
+
+    def test_eq_same_fields(self) -> None:
+        self.assertTrue(LineItem("EL-1001", 1, Money(5)) == LineItem("el-1001", 1, Money(5)))
+
+    def test_eq_differs_on_quantity(self) -> None:
+        self.assertFalse(LineItem("EL-1001", 1, Money(5)) == LineItem("EL-1001", 2, Money(5)))
+
+    def test_eq_differs_on_price(self) -> None:
+        self.assertFalse(LineItem("EL-1001", 1, Money(5)) == LineItem("EL-1001", 1, Money(6)))
+
+    def test_eq_non_line_item_returns_not_implemented(self) -> None:
+        li = LineItem("EL-1001", 1, Money(5))
+        self.assertIs(li.__eq__("EL-1001"), NotImplemented)
+        self.assertFalse(li == "EL-1001")
+
+    def test_hash_consistent_with_equal_items(self) -> None:
+        a = LineItem("EL-1001", 1, Money(5))
+        b = LineItem("EL-1001", 1, Money(5))
+        self.assertEqual(hash(a), hash(b))
+        self.assertEqual(hash(a), hash(("EL-1001", 1)))
+
+    def test_repr(self) -> None:
+        self.assertEqual(
+            repr(LineItem("EL-1001", 2, Money(250))),
+            "LineItem('EL-1001', 2, Money(250))",
+        )
+
+
+
+
+RELATED EXISTING TEST CLASSES (read-only context):
+class MoneyConstructionTests(unittest.TestCase):
+    def test_default_is_zero(self) -> None:
+        self.assertEqual(Money().cents, 0)
+
+    def test_stores_cents(self) -> None:
+        self.assertEqual(Money(1234).cents, 1234)
+
+    def test_bool_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(True)  # type: ignore[arg-type]
+
+    def test_float_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(1.5)  # type: ignore[arg-type]
+
+    def test_str_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money("100")  # type: ignore[arg-type]
+
+    def test_negative_rejected(self) -> None:
+        with self.assertRaises(ValueError) as ctx:
+            Money(-1)
+        self.assertEqual(str(ctx.exception), "money cannot be negative")
+
+    def test_cents_is_read_only(self) -> None:
+        m = Money(5)
+        with self.assertRaises(AttributeError):
+            m.cents = 10
+
+class MoneyArithmeticTests(unittest.TestCase):
+    def test_add(self) -> None:
+        self.assertEqual(Money(100) + Money(250), Money(350))
+
+    def test_add_non_money_raises_type_error(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(1) + 1  # type: ignore[operator]
+
+    def test_sub(self) -> None:
+        self.assertEqual(Money(500) - Money(120), Money(380))
+
+    def test_sub_to_zero_allowed(self) -> None:
+        self.assertEqual(Money(5) - Money(5), Money(0))
+
+    def test_sub_non_money_raises_type_error(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(5) - 1  # type: ignore[operator]
+
+    def test_sub_negative_result_raises_value_error(self) -> None:
+        with self.assertRaises(ValueError) as ctx:
+            Money(1) - Money(2)
+        self.assertEqual(str(ctx.exception), "subtraction would be negative")
+
+    def test_mul_by_int(self) -> None:
+        self.assertEqual(Money(250) * 3, Money(750))
+
+    def test_mul_by_zero(self) -> None:
+        self.assertEqual(Money(250) * 0, Money(0))
+
+    def test_mul_bool_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(5) * True  # type: ignore[operator]
+
+    def test_mul_float_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(5) * 1.5  # type: ignore[operator]
+
+    def test_mul_negative_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            Money(5) * -1
+
+    def test_rmul_supports_int_on_left(self) -> None:
+        self.assertEqual(3 * Money(250), Money(750))
+
+    def test_rmul_delegates_to_mul(self) -> None:
+        self.assertEqual(Money(4).__rmul__(2), Money(4).__mul__(2))
+
+    def test_rmul_invalid_factor_rejected(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(4).__rmul__(True)
+
+class MoneyComparisonTests(unittest.TestCase):
+    def test_eq_same_cents(self) -> None:
+        self.assertTrue(Money(10) == Money(10))
+
+    def test_eq_different_cents(self) -> None:
+        self.assertFalse(Money(10) == Money(11))
+
+    def test_eq_non_money_is_false(self) -> None:
+        self.assertFalse(Money(10) == 10)
+        self.assertFalse(Money(0) == None)  # noqa: E711
+
+    def test_eq_non_money_returns_not_implemented(self) -> None:
+        self.assertIs(Money(1).__eq__(1), NotImplemented)
+
+    def test_ne(self) -> None:
+        self.assertTrue(Money(1) != Money(2))
+        self.assertFalse(Money(2) != Money(2))
+
+    def test_lt_true(self) -> None:
+        self.assertTrue(Money(1) < Money(2))
+
+    def test_lt_false_when_equal_or_greater(self) -> None:
+        self.assertFalse(Money(2) < Money(2))
+        self.assertFalse(Money(3) < Money(2))
+
+    def test_lt_non_money_raises_type_error_via_operator(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(1) < 2  # type: ignore[operator]
+
+    def test_lt_non_money_returns_not_implemented(self) -> None:
+        self.assertIs(Money(1).__lt__(2), NotImplemented)
+
+    def test_gt_works_via_reflected_lt(self) -> None:
+        # DESIGN.md defines only __lt__; '>' resolves through Python's reflection.
+        self.assertTrue(Money(5) > Money(2))
+        self.assertFalse(Money(2) > Money(2))
+
+    def test_le_less(self) -> None:
+        self.assertTrue(Money(1) <= Money(2))
+
+    def test_le_equal(self) -> None:
+        self.assertTrue(Money(2) <= Money(2))
+
+    def test_le_greater(self) -> None:
+        self.assertFalse(Money(3) <= Money(2))
+
+    def test_le_non_money_returns_not_implemented(self) -> None:
+        self.assertIs(Money(1).__le__(2), NotImplemented)
+
+    def test_le_non_money_raises_type_error_via_operator(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(1) <= 2  # type: ignore[operator]
+
+    def test_ge_works_via_reflected_le(self) -> None:
+        # With __le__ defined, '>=' resolves through Python's reflection.
+        self.assertTrue(Money(2) >= Money(2))
+        self.assertFalse(Money(1) >= Money(2))
+
+    def test_sorting(self) -> None:
+        values = [Money(30), Money(10), Money(20)]
+        self.assertEqual([m.cents for m in sorted(values)], [10, 20, 30])
+
+class MoneyMiscTests(unittest.TestCase):
+    def test_hash_matches_equal_values(self) -> None:
+        self.assertEqual(hash(Money(7)), hash(Money(7)))
+        self.assertEqual(hash(Money(7)), hash(("Money", 7)))
+
+    def test_usable_as_set_member(self) -> None:
+        self.assertEqual(len({Money(1), Money(1), Money(2)}), 2)
+
+    def test_repr(self) -> None:
+        self.assertEqual(repr(Money(1234)), "Money(1234)")
+
+    def test_str_formats_dollars(self) -> None:
+        self.assertEqual(str(Money(1234)), "$12.34")
+        self.assertEqual(str(Money(0)), "$0.00")
+
+    def test_bool_false_for_zero(self) -> None:
+        self.assertFalse(bool(Money(0)))
+
+    def test_bool_true_for_nonzero(self) -> None:
+        self.assertTrue(bool(Money(1)))
+
+Return the required JSON object for this target only.
