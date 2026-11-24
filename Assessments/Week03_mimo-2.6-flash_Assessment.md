@@ -1,0 +1,21 @@
+# Assessment by mimo-2.6-flash
+
+# Week 03 Prompting
+- Awarded: 3b out of 5b
+- Commentary: The student produced a complete artifact chain: three framework-based prompts (CLEAR, RACE, CRISP), three genuinely different prediction CSVs with model/prompt metadata and timing records, an implemented new metric with a written defense, and a report with a significance test. Weaknesses are concentrated in the written analysis: the Task 1 rationale report is nearly empty, Task 2 lacks the required visualization, and the Task 4 report is far from "detailed" (the coding-agent factor is never discussed). Note: the Task 4 figure prompt_comparison_graphics.png could not be viewed by this model, so it is judged from the accompanying text only.
+
+## Task 1
+- Awarded: 0.5b   (max 1b)
+- Commentary: Three prompt files exist (CLEAR.txt, RACE.txt, CRISP.txt), avoiding ROSES and zero-shot, and they carry real domain content for the Task 2 SQL problem, so the data-file deliverable is met. However, the required report (report.txt, 6 lines) gives almost no per-framework reasoning: it only states the frameworks came from "the given link", are free, and that the student expected RACE to be better — no explanation of why each framework was chosen or what outcome was expected from each. Quality signals are mixed: CLEAR.txt and RACE.txt still contain unfilled template placeholders ("[AUDIENCE: ...]", "aim for roughly 600-900 words") inconsistent with a CSV-output task, and CRISP.txt reads as a short follow-up formatting instruction rather than a clearly structured CRISP-based prompt.
+
+## Task 2
+- Awarded: 0.5b   (max 1b)
+- Commentary: Core deliverables are present: three prediction files (155 rows each) with visibly different SQL dialects consistent with separate prompt sessions, experiment_metadata.txt recording model ("6.1sol", medium reasoning), prompt-to-file mapping, inference times per framework (CLEAR 1m10s, CRISP 1m24s, RACE 3m32s + 25s file follow-up), and accuracy/execution results (43/155 = 27.74%, 100% execution for all three). A comparison report exists (results_compare.txt) with honest caveats (manual timing records, one run per framework). The explicit requirement of "a nice vizualisation" inside the report is not met — no chart or image exists anywhere in the Task 2 folder — and the report itself is a few lines long without the actual quality numbers embedded in it.
+
+## Task 3
+- Awarded: 1b   (max 1b)
+- Commentary: All deliverables are met at good quality. The proposed metric (SQL Execution Rate = executable statements / total predictions) is clearly defined, argued as directly relevant to text-to-SQL (detects syntax/schema/type failures before correctness can even be assessed), and explicitly framed as complementing rather than replacing exact-result accuracy, with a sound separation of operational validity vs. answer correctness. metric_comparison.py is a complete, runnable implementation (schema/data loading into in-memory SQLite, per-prompt execution counts plus exact-result accuracy cross-check), the values are computed on the actual Task 2 predictions (100% execution, 27.74% accuracy for all three), and the report compares prompts, honestly noting the metric is saturated and thus non-discriminating here, with limitations discussed. Minor deduction-worthy novelty concern is offset by the task rating originality only as "appreciated."
+
+## Task 4
+- Awarded: 1b   (max 2b)
+- Commentary: The report contains a results table in bullet form, performs an appropriate paired significance test (McNemar, p = 1.00 — correct for identical paired outcomes), and offers plausible interpretation (same model/task/schema, ambiguous question wording, uniform evaluator) plus a proper single-run caveat. The PNG figure exists but could not be viewed by this model, so its content is judged from the text alone. Points are lost because the report is only 13 lines rather than "detailed": the required consideration of prompts, model, AND coding agent as factors covers only prompts and model (the coding-agent factor is never mentioned), there is no deeper analysis of the metric-value distribution or timing differences carried over from Tasks 2–3, and the graphical evidence could not be substantiated from the submission text.
